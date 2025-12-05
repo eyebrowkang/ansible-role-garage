@@ -1,6 +1,6 @@
 ---
 - name: Deploy Garage configuration
-  template:
+  ansible.builtin.template:
     src: garage.toml.j2
     dest: "{{ garage_config_dir }}/garage.toml"
     owner: "{{ garage_daemon_user }}"
@@ -9,14 +9,14 @@
   notify: Restart garage
 
 - name: Deploy Garage systemd unit
-  template:
+  ansible.builtin.template:
     src: garage.service.j2
     dest: /etc/systemd/system/garage.service
     mode: '0644'
   notify: Restart garage
 
 - name: Enable and start Garage service
-  systemd:
+  ansible.builtin.systemd:
     name: garage
     state: started
     enabled: yes
