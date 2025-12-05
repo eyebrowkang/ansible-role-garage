@@ -1,0 +1,50 @@
+---
+- name: Determine Garage architecture
+  set_fact:
+    garage_arch_string: >-
+      {%- if ansible_architecture == 'x86_64' -%}
+      x86_64-unknown-linux-musl
+      {%- elif ansible_architecture == 'aarch64' -%}
+      aarch64-unknown-linux-musl
+      {%- elif ansible_architecture == 'armv7l' -%}
+      armv6l-unknown-linux-musleabihf
+      {%- elif ansible_architecture == 'i386' -%}
+      i686-unknown-linux-musl
+      {%- else -%}
+      {{ garage_arched | default('x86_64-unknown-linux-musl') }}
+      {%- endif -%}
+
+- name: Create Garage group
+  group:
+    name: "{{ garage_daemon_group }}"
+    state: present
+    system: yes
+
+- name: Create Garage user
+  user:
+    name: "{{ garage_daemon_user }}"
+    group: "{{ garage_daemon_group }}"
+    system: yes
+    create_home: no
+    shell: /bin/false
+
+- name: Create Garage directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ garage_daemon_user }}"
+    group: "{{ garage_daemon_group }}"
+    mode: '0750'
+  loop:
+    - "{{ garage_config_dir }}"
+    - "{{ garage_data_dir }}"
+    - "{{ garage_metadata_dir }}"
+
+- name: Download Garage binary
+  get_url:
+    url: "https://garagehq.deuxfleurs.fr/_releases/{{ garage_version }}/{{ garage_arch_string }}/garage"
+    dest: "{{ garage_bin_path }}"
+    mode: '0755'
+    owner: root
+    group: root
+  notify: Restart garage

@@ -1,0 +1,23 @@
+galaxy_info:
+  role_name: garage
+  namespace: eyebrowkang
+  author: eyebrowkang
+  description: Ansible role to deploy Garage Object Store
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - garage
+    - s3
+    - object-store
+    - system
+dependencies: []

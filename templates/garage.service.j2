@@ -1,0 +1,13 @@
+[Unit]
+Description=Garage Object Store
+After=network.target
+
+[Service]
+User={{ garage_daemon_user }}
+Group={{ garage_daemon_group }}
+ExecStart={{ garage_bin_path }} server -c {{ garage_config_dir }}/garage.toml
+Restart=always
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

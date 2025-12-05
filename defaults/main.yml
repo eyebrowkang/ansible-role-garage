@@ -1,0 +1,38 @@
+---
+garage_version: "v2.0.0"
+
+# Daemon settings
+garage_daemon_user: garage
+garage_daemon_group: garage
+
+# Paths
+garage_bin_path: /usr/local/bin/garage
+garage_config_dir: /etc/garage
+garage_data_dir: /var/lib/garage/data
+garage_metadata_dir: /var/lib/garage/meta
+
+# Main configuration
+garage_db_engine: sqlite
+garage_replication_factor: 1
+
+# RPC
+garage_rpc_bind_addr: "[::]:3901"
+garage_rpc_public_addr: "127.0.0.1:3901"
+# garage_rpc_secret: "replaceme" # Best practice: set this in vault
+
+# S3 API
+garage_s3_region: "garage"
+garage_s3_api_bind_addr: "[::]:3900"
+garage_s3_root_domain: ".s3.garage.localhost"
+
+# S3 Web
+garage_web_bind_addr: "[::]:3902"
+garage_web_root_domain: ".web.garage.localhost"
+
+# K2V
+garage_k2v_api_bind_addr: "[::]:3904"
+
+# Admin
+garage_admin_api_bind_addr: "[::]:3903"
+# garage_metrics_token: "replaceme" # Best practice: set this in vault
+# garage_admin_token: "replaceme" # Best practice: set this in vault
