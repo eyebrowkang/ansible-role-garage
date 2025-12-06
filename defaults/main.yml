@@ -12,27 +12,26 @@ garage_data_dir: /var/lib/garage/data
 garage_metadata_dir: /var/lib/garage/meta
 
 # Main configuration
-garage_db_engine: sqlite
+garage_db_engine: lmdb
 garage_replication_factor: 1
 
 # RPC
+# can be generated with a command such as `openssl rand -hex 32`
+garage_rpc_secret: "0123456789abcdef0123456789abcdef"
 garage_rpc_bind_addr: "[::]:3901"
 garage_rpc_public_addr: "127.0.0.1:3901"
-# garage_rpc_secret: "replaceme" # Best practice: set this in vault
 
 # S3 API
 garage_s3_region: "garage"
 garage_s3_api_bind_addr: "[::]:3900"
-garage_s3_root_domain: ".s3.garage.localhost"
+garage_s3_root_domain: ".s3.garage.local"
 
 # S3 Web
 garage_web_bind_addr: "[::]:3902"
-garage_web_root_domain: ".web.garage.localhost"
-
-# K2V
-garage_k2v_api_bind_addr: "[::]:3904"
+garage_web_root_domain: ".web.garage.local"
 
 # Admin
 garage_admin_api_bind_addr: "[::]:3903"
-# garage_metrics_token: "replaceme" # Best practice: set this in vault
-# garage_admin_token: "replaceme" # Best practice: set this in vault
+garage_metrics_token: "0123456789abcdef0123456789abcdef"
+garage_metrics_require_token: true
+garage_admin_token: "0123456789abcdef0123456789abcdef"

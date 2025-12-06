@@ -26,6 +26,16 @@ provisioner:
   log: true
   lint:
     name: ansible-lint
+  inventory:
+    host_vars:
+      debian11:
+        garage_rpc_secret: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+        garage_metrics_token: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+        garage_admin_token: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+      debian12:
+        garage_rpc_secret: "ae6f6773bd8d1d26bf55843989d94642a0383e189f1fd5943d91a8ea0e565ac0"
+        garage_metrics_token: "ae6f6773bd8d1d26bf55843989d94642a0383e189f1fd5943d91a8ea0e565ac0"
+        garage_admin_token: "ae6f6773bd8d1d26bf55843989d94642a0383e189f1fd5943d91a8ea0e565ac0"
 
 verifier:
   name: ansible

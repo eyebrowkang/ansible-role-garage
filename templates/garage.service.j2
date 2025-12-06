@@ -1,13 +1,17 @@
 [Unit]
-Description=Garage Object Store
-After=network.target
+Description=Garage Data Store
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 User={{ garage_daemon_user }}
 Group={{ garage_daemon_group }}
-ExecStart={{ garage_bin_path }} server -c {{ garage_config_dir }}/garage.toml
-Restart=always
-LimitNOFILE=65536
+ExecStart={{ garage_bin_path }} --config {{ garage_config_dir }}/garage.toml server
+StateDirectory=garage
+DynamicUser=true
+ProtectHome=true
+NoNewPrivileges=true
+LimitNOFILE=42000
 
 [Install]
 WantedBy=multi-user.target

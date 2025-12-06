@@ -18,13 +18,13 @@
   ansible.builtin.group:
     name: "{{ garage_daemon_group }}"
     state: present
-    system: yes
+    system: true
 
 - name: Create Garage user
   ansible.builtin.user:
     name: "{{ garage_daemon_user }}"
     group: "{{ garage_daemon_group }}"
-    system: yes
+    system: true
     create_home: no
     shell: /bin/false
 

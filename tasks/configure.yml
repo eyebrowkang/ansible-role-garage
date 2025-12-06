@@ -16,8 +16,8 @@
   notify: Restart garage
 
 - name: Enable and start Garage service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: garage
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
