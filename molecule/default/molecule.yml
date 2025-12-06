@@ -1,19 +1,31 @@
 ---
 dependency:
   name: galaxy
+
 driver:
   name: vagrant
   provider:
     name: libvirt
+    type: libvirt
+
 platforms:
-  - name: instance
+  - name: debian11
+    box: generic/debian11
+    memory: 2048
+    cpus: 1
+  - name: debian12
     box: generic/debian12
     memory: 2048
     cpus: 1
     provider_options:
       driver: kvm
       qemu_use_session: false
+
 provisioner:
   name: ansible
+  log: true
+  lint:
+    name: ansible-lint
+
 verifier:
   name: ansible

@@ -1,8 +1,9 @@
 ---
-- name: Converge
+- name: Setup Garage
   hosts: all
-  become: yes
+  become: true
+  gather_facts: true
   tasks:
-    - name: Include ansible-role-garage
+    - name: Include garage role
       ansible.builtin.include_role:
-        name: ansible-role-garage
+        name: eyebrowkang.ansible_role_garage
