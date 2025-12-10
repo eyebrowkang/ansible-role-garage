@@ -1,10 +1,10 @@
 galaxy_info:
   author: eyebrowkang
-  description: Ansible role to deploy Garage Object Store
+  description: Ansible role to deploy Garage Object Store using systemd
   license: MIT
   min_ansible_version: "2.11"
   namespace: eyebrowkang
-  role_name: ansible_role_garage
+  role_name: garage
   platforms:
     - name: EL
       versions:
