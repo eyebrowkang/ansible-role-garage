@@ -14,6 +14,39 @@
       {{ garage_arched | default('x86_64-unknown-linux-musl') }}
       {%- endif -%}
 
+- name: Check if Garage binary exists
+  ansible.builtin.stat:
+    path: "{{ garage_bin_path }}"
+  register: garage_binary_stat
+
+- name: Get installed Garage version
+  ansible.builtin.command:
+    cmd: "{{ garage_bin_path }} --version"
+  register: garage_installed_version
+  changed_when: false
+  failed_when: false
+  when: garage_binary_stat.stat.exists
+
+- name: Parse installed Garage version
+  ansible.builtin.set_fact:
+    garage_current_version: "{{ garage_installed_version.stdout | regex_search('v[0-9]+\\.[0-9]+\\.[0-9]+') | default('') }}"
+  when: garage_binary_stat.stat.exists and garage_installed_version.rc == 0
+
+- name: Set version mismatch flag
+  ansible.builtin.set_fact:
+    garage_version_mismatch: "{{ not garage_binary_stat.stat.exists or garage_current_version | default('') != garage_version }}"
+
+- name: Display version status
+  ansible.builtin.debug:
+    msg: >-
+      {% if not garage_binary_stat.stat.exists %}
+      Garage binary not found, will install {{ garage_version }}
+      {% elif garage_version_mismatch %}
+      Garage version mismatch: installed={{ garage_current_version | default('unknown') }}, target={{ garage_version }}
+      {% else %}
+      Garage {{ garage_version }} already installed
+      {% endif %}
+
 - name: Create Garage group
   ansible.builtin.group:
     name: "{{ garage_daemon_group }}"
@@ -47,4 +80,11 @@
     mode: '0755'
     owner: root
     group: root
+    force: true
   notify: Restart garage
+  when: garage_version_mismatch and (garage_upgrade | default(true) or not garage_binary_stat.stat.exists)
+
+- name: Skip upgrade notification
+  ansible.builtin.debug:
+    msg: "Garage upgrade skipped: garage_upgrade is false. Current={{ garage_current_version }}, Target={{ garage_version }}"
+  when: garage_version_mismatch and garage_binary_stat.stat.exists and not (garage_upgrade | default(true))

@@ -1,6 +1,10 @@
 ---
 garage_version: "v2.0.0"
 
+# Upgrade control
+# Set to false to prevent automatic upgrades when version mismatch is detected
+garage_upgrade: true
+
 # Daemon settings
 garage_daemon_user: garage
 garage_daemon_group: garage
@@ -10,6 +14,11 @@ garage_bin_path: /usr/local/bin/garage
 garage_config_dir: /etc/garage
 garage_data_dir: /var/lib/garage/data
 garage_metadata_dir: /var/lib/garage/meta
+
+# Custom templates (set to your own template path to override defaults)
+# Example: garage_config_template: "{{ playbook_dir }}/templates/my-garage.toml.j2"
+garage_config_template: ""
+garage_service_template: ""
 
 # Main configuration
 garage_env_vars: "'GARAGE_LOG_TO_JOURNALD=1'"
