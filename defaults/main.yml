@@ -12,12 +12,13 @@ garage_data_dir: /var/lib/garage/data
 garage_metadata_dir: /var/lib/garage/meta
 
 # Main configuration
+garage_env_vars: "'GARAGE_LOG_TO_JOURNALD=1'"
 garage_db_engine: lmdb
 garage_replication_factor: 1
 
 # RPC
 # can be generated with a command such as `openssl rand -hex 32`
-garage_rpc_secret: "0123456789abcdef0123456789abcdef"
+garage_rpc_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 garage_rpc_bind_addr: "[::]:3901"
 garage_rpc_public_addr: "127.0.0.1:3901"
 
@@ -32,6 +33,6 @@ garage_web_root_domain: ".web.garage.local"
 
 # Admin
 garage_admin_api_bind_addr: "[::]:3903"
-garage_metrics_token: "0123456789abcdef0123456789abcdef"
+garage_metrics_token: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 garage_metrics_require_token: true
-garage_admin_token: "0123456789abcdef0123456789abcdef"
+garage_admin_token: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

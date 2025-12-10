@@ -4,6 +4,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
+Environment={{ garage_env_vars }}
 User={{ garage_daemon_user }}
 Group={{ garage_daemon_group }}
 ExecStart={{ garage_bin_path }} --config {{ garage_config_dir }}/garage.toml server
