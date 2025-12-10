@@ -5,6 +5,7 @@ galaxy_info:
   min_ansible_version: "2.11"
   namespace: eyebrowkang
   role_name: garage
+  version: "0.1.0"
   platforms:
     - name: EL
       versions:
