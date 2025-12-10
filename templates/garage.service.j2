@@ -9,7 +9,6 @@ User={{ garage_daemon_user }}
 Group={{ garage_daemon_group }}
 ExecStart={{ garage_bin_path }} --config {{ garage_config_dir }}/garage.toml server
 StateDirectory=garage
-DynamicUser=true
 ProtectHome=true
 NoNewPrivileges=true
 LimitNOFILE=42000

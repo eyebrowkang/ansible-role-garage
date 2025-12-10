@@ -58,7 +58,7 @@
     name: "{{ garage_daemon_user }}"
     group: "{{ garage_daemon_group }}"
     system: true
-    create_home: no
+    create_home: false
     shell: /bin/false
 
 - name: Create Garage directories
