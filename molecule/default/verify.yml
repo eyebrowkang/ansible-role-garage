@@ -3,16 +3,45 @@
   hosts: all
   become: true
   tasks:
-    - name: Check if Garage service is running
+    - name: Check Garage binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/garage
+      register: garage_binary
+
+    - name: Assert binary exists
+      ansible.builtin.assert:
+        that:
+          - garage_binary.stat.exists
+          - garage_binary.stat.executable
+        fail_msg: "Garage binary not found or not executable"
+
+    - name: Check Garage service is active
       ansible.builtin.systemd_service:
         name: garage
-        state: started
-        enabled: true
-      register: service_status
-      failed_when: service_status.status.ActiveState != 'active'
+      register: garage_service
 
-    - name: Check if Garage RPC port is listening
-      ansible.builtin.wait_for:
-        port: 3901
-        delay: 5
-        timeout: 30
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that:
+          - garage_service.status.ActiveState == "active"
+        fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
+
+    - name: Check health endpoint
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:3903/health"
+        method: GET
+        return_content: true
+        status_code: 200
+      register: health_check
+
+    - name: Check config file contains Managed by Ansible
+      ansible.builtin.command:
+        cmd: grep -c "Managed by Ansible" /etc/garage/garage.toml
+      register: config_header
+      changed_when: false
+
+    - name: Assert config header is present
+      ansible.builtin.assert:
+        that:
+          - config_header.stdout | int > 0
+        fail_msg: "Config file does not contain 'Managed by Ansible' header"

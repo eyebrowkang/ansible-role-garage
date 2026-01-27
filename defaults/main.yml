@@ -1,35 +1,22 @@
 ---
 garage_version: "v2.0.0"
+garage_user: "garage"
+garage_group: "garage"
+garage_home: "/var/lib/garage"
+garage_config_dir: "/etc/garage"
 
-# Upgrade control
-# Set to false to prevent automatic upgrades when version mismatch is detected
-garage_upgrade: true
+garage_data_dir: "{{ garage_home }}/data"
+garage_metadata_dir: "{{ garage_home }}/meta"
 
-# Daemon settings
-garage_daemon_user: garage
-garage_daemon_group: garage
-
-# Paths
-garage_bin_path: /usr/local/bin/garage
-garage_config_dir: /etc/garage
-garage_data_dir: /var/lib/garage/data
-garage_metadata_dir: /var/lib/garage/meta
-
-# Custom templates (set to your own template path to override defaults)
-# Example: garage_config_template: "{{ playbook_dir }}/templates/my-garage.toml.j2"
-garage_config_template: ""
-garage_service_template: ""
-
-# Main configuration
-garage_env_vars: "'GARAGE_LOG_TO_JOURNALD=1'"
-garage_db_engine: lmdb
+garage_db_engine: "lmdb"
 garage_replication_factor: 1
 
 # RPC
-# can be generated with a command such as `openssl rand -hex 32`
-garage_rpc_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+# Generate with: openssl rand -hex 32
+garage_rpc_secret: ""
 garage_rpc_bind_addr: "[::]:3901"
-garage_rpc_public_addr: "127.0.0.1:3901"
+garage_rpc_public_addr: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}:3901"
+garage_bootstrap_peers: []
 
 # S3 API
 garage_s3_region: "garage"
@@ -37,11 +24,19 @@ garage_s3_api_bind_addr: "[::]:3900"
 garage_s3_root_domain: ".s3.garage.local"
 
 # S3 Web
-garage_web_bind_addr: "[::]:3902"
-garage_web_root_domain: ".web.garage.local"
+garage_s3_web_bind_addr: "[::]:3902"
+garage_s3_web_root_domain: ".web.garage.local"
 
 # Admin
 garage_admin_api_bind_addr: "[::]:3903"
-garage_metrics_token: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-garage_metrics_require_token: true
-garage_admin_token: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+# garage_admin_token: ""
+# garage_metrics_token: ""
+
+# Upgrade control
+garage_upgrade: false
+garage_checksum: ""
+
+# Configuration
+garage_config_template: "garage.toml.j2"
+garage_config_custom_options: ""
+garage_env_variables: {}

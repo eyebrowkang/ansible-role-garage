@@ -1,0 +1,25 @@
+---
+- name: Validate garage_version starts with v
+  ansible.builtin.assert:
+    that:
+      - garage_version is match('^v')
+    fail_msg: "garage_version must start with 'v' (got '{{ garage_version }}')"
+
+- name: Validate garage_rpc_secret is set
+  ansible.builtin.assert:
+    that:
+      - garage_rpc_secret | default('') | length > 0
+    fail_msg: "garage_rpc_secret must be defined and non-empty"
+
+- name: Validate garage_replication_factor is a positive integer
+  ansible.builtin.assert:
+    that:
+      - garage_replication_factor | int > 0
+    fail_msg: "garage_replication_factor must be a positive integer (got '{{ garage_replication_factor }}')"
+
+- name: Validate garage_upgrade is boolean
+  ansible.builtin.assert:
+    that:
+      - garage_upgrade | type_debug in ['bool', 'AnsibleUnsafeText', 'str']
+      - garage_upgrade | string | lower in ['true', 'false']
+    fail_msg: "garage_upgrade must be a boolean (got '{{ garage_upgrade }}')"

@@ -1,0 +1,10 @@
+---
+garage_binary_path: /usr/local/bin/garage
+
+_garage_arch_map:
+  x86_64: x86_64-unknown-linux-musl
+  aarch64: aarch64-unknown-linux-musl
+  armv7l: armv6l-unknown-linux-musleabihf
+  i386: i686-unknown-linux-musl
+
+_garage_known_checksums: {}

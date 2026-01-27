@@ -1,3 +1,24 @@
 ---
-- import_tasks: install.yml
-- import_tasks: configure.yml
+- name: Validate
+  ansible.builtin.include_tasks: validate.yml
+
+- name: Setup
+  ansible.builtin.include_tasks: setup.yml
+
+- name: Version check
+  ansible.builtin.include_tasks: version_check.yml
+  when: garage_upgrade | bool
+
+- name: Upgrade
+  ansible.builtin.include_tasks: upgrade.yml
+  when: garage_upgrade | bool and (_garage_upgrade_needed | default(false) | bool)
+
+- name: Install
+  ansible.builtin.include_tasks: install.yml
+  when: not (garage_upgrade | bool)
+
+- name: Configure
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Service
+  ansible.builtin.include_tasks: service.yml

@@ -1,0 +1,36 @@
+---
+- name: Get current installed Garage version
+  ansible.builtin.command:
+    cmd: "{{ garage_binary_path }} --version"
+  register: _garage_current_version_output
+  changed_when: false
+  failed_when: false
+
+- name: Parse current version
+  ansible.builtin.set_fact:
+    _garage_current_version: >-
+      v{{ _garage_current_version_output.stdout | regex_search('(\d+\.\d+\.\d+)') }}
+  when: _garage_current_version_output.rc == 0
+
+- name: Display version information
+  ansible.builtin.debug:
+    msg: "Current: {{ _garage_current_version | default('not installed') }} -> Target: {{ garage_version }}"
+
+- name: Set upgrade needed fact (binary not found)
+  ansible.builtin.set_fact:
+    _garage_upgrade_needed: true
+  when: _garage_current_version_output.rc != 0
+
+- name: Set upgrade needed fact (version comparison)
+  when: _garage_current_version_output.rc == 0
+  block:
+    - name: Fail if downgrade attempted
+      ansible.builtin.fail:
+        msg: >-
+          Downgrade not supported: current version {{ _garage_current_version }}
+          is newer than target version {{ garage_version }}
+      when: _garage_current_version is version(garage_version, '>')
+
+    - name: Set upgrade needed when versions differ
+      ansible.builtin.set_fact:
+        _garage_upgrade_needed: "{{ _garage_current_version is version(garage_version, '<') }}"

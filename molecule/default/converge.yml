@@ -1,9 +1,8 @@
 ---
-- name: Setup Garage
+- name: Converge
   hosts: all
   become: true
-  gather_facts: true
-  tasks:
-    - name: Include garage role
-      ansible.builtin.include_role:
-        name: eyebrowkang.garage
+  vars:
+    garage_rpc_secret: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+  roles:
+    - role: eyebrowkang.garage

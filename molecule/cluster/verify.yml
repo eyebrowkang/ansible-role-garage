@@ -1,0 +1,57 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check Garage service is active
+      ansible.builtin.systemd_service:
+        name: garage
+      register: garage_service
+
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that:
+          - garage_service.status.ActiveState == "active"
+        fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
+
+    - name: Check health endpoint
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:3903/health"
+        method: GET
+        return_content: true
+        status_code: 200
+      register: health_check
+
+    - name: Run garage status command
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml status
+      register: garage_status
+      changed_when: false
+
+    - name: Display garage status
+      ansible.builtin.debug:
+        msg: "{{ garage_status.stdout }}"
+
+    - name: Verify replication_factor in config
+      ansible.builtin.command:
+        cmd: grep -c "replication_factor = 3" /etc/garage/garage.toml
+      register: replication_check
+      changed_when: false
+
+    - name: Assert replication_factor is 3
+      ansible.builtin.assert:
+        that:
+          - replication_check.stdout | int > 0
+        fail_msg: "replication_factor is not set to 3 in config"
+
+    - name: Verify bootstrap_peers in config
+      ansible.builtin.command:
+        cmd: grep -c "bootstrap_peers" /etc/garage/garage.toml
+      register: bootstrap_check
+      changed_when: false
+
+    - name: Assert bootstrap_peers is present
+      ansible.builtin.assert:
+        that:
+          - bootstrap_check.stdout | int > 0
+        fail_msg: "bootstrap_peers not found in config"

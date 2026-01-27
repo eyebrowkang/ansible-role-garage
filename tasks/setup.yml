@@ -1,0 +1,33 @@
+---
+- name: Install acl package (required for become_user)
+  ansible.builtin.package:
+    name: acl
+    state: present
+
+- name: Create garage group
+  ansible.builtin.group:
+    name: "{{ garage_group }}"
+    system: true
+    state: present
+
+- name: Create garage user
+  ansible.builtin.user:
+    name: "{{ garage_user }}"
+    group: "{{ garage_group }}"
+    system: true
+    create_home: true
+    home: "{{ garage_home }}"
+    shell: /sbin/nologin
+    state: present
+
+- name: Create required directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ garage_user }}"
+    group: "{{ garage_group }}"
+    mode: "0755"
+  loop:
+    - "{{ garage_config_dir }}"
+    - "{{ garage_data_dir }}"
+    - "{{ garage_metadata_dir }}"

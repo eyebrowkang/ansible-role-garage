@@ -1,13 +1,7 @@
 ---
-- name: Check if Garage binary exists
-  ansible.builtin.stat:
-    path: "{{ garage_binary_path }}"
-  register: _garage_binary
-
 - name: Determine system architecture
   ansible.builtin.set_fact:
     _garage_arch: "{{ _garage_arch_map[ansible_architecture] | default('x86_64-unknown-linux-musl') }}"
-  when: not _garage_binary.stat.exists
 
 - name: Compute effective checksum
   ansible.builtin.set_fact:
@@ -17,9 +11,22 @@
               if garage_version in _garage_known_checksums
                  and _garage_arch in _garage_known_checksums[garage_version]
          else "" }}
-  when: not _garage_binary.stat.exists
 
-- name: Download Garage binary
+- name: Stop Garage service before upgrade
+  ansible.builtin.systemd_service:
+    name: garage
+    state: stopped
+  failed_when: false
+
+- name: Backup current Garage binary
+  ansible.builtin.copy:
+    src: "{{ garage_binary_path }}"
+    dest: "{{ garage_binary_path }}.bak"
+    remote_src: true
+    mode: "0755"
+  failed_when: false
+
+- name: Download new Garage binary
   ansible.builtin.get_url:
     url: "https://garagehq.deuxfleurs.fr/_releases/{{ garage_version }}/{{ _garage_arch }}/garage"
     dest: "{{ garage_binary_path }}"
@@ -27,8 +34,8 @@
     mode: "0755"
     owner: root
     group: root
+    force: true
     timeout: 120
-  when: not _garage_binary.stat.exists
   notify: Restart garage
   retries: 3
   delay: 10

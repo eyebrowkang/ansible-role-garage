@@ -1,0 +1,9 @@
+---
+profile: production
+
+exclude_paths:
+  - .git/
+  - .ansible/
+
+skip_list:
+  - name[template]

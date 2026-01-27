@@ -1,0 +1,14 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    garage_rpc_secret: "ae6f6773bd8d1d26bf55843989d94642a0383e189f1fd5943d91a8ea0e565ac0"
+    garage_replication_factor: 3
+    garage_rpc_public_addr: "{{ ansible_default_ipv4.address }}:3901"
+    garage_bootstrap_peers: >-
+      {{ groups['all'] | map('extract', hostvars, 'ansible_default_ipv4')
+         | map(attribute='address') | map('regex_replace', '^(.*)$', '\1:3901')
+         | list }}
+  roles:
+    - role: eyebrowkang.garage

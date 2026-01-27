@@ -1,0 +1,28 @@
+---
+- name: Start and enable Garage service
+  ansible.builtin.systemd_service:
+    name: garage
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Flush handlers before health check
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait for Garage admin API to be ready
+  ansible.builtin.wait_for:
+    port: "{{ garage_admin_api_bind_addr | regex_search(':([0-9]+)$', '\\1') | first }}"
+    delay: 5
+    timeout: 60
+    state: started
+
+- name: Check Garage health endpoint
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ garage_admin_api_bind_addr | regex_search(':([0-9]+)$', '\\1') | first }}/health"
+    method: GET
+    return_content: true
+    status_code: 200
+  register: _garage_health_check
+  retries: 5
+  delay: 10
+  until: _garage_health_check.status == 200

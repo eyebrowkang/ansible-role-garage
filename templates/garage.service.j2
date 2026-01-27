@@ -1,16 +1,29 @@
 [Unit]
 Description=Garage Data Store
-After=network-online.target
+Documentation=https://garagehq.deuxfleurs.fr/documentation/
+After=network.target network-online.target systemd-user-sessions.service
 Wants=network-online.target
 
 [Service]
-Environment={{ garage_env_vars }}
-User={{ garage_daemon_user }}
-Group={{ garage_daemon_group }}
-ExecStart={{ garage_bin_path }} --config {{ garage_config_dir }}/garage.toml server
-StateDirectory=garage
-ProtectHome=true
+Type=simple
+WorkingDirectory={{ garage_home }}
+Environment="GARAGE_LOG_TO_JOURNALD=1"
+{% if garage_env_variables | default({}, true) | length > 0 %}
+EnvironmentFile=-{{ garage_config_dir }}/garage.env
+{% endif %}
+ExecStart={{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml server
+User={{ garage_user }}
+Group={{ garage_group }}
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+# Security settings
 NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{ garage_home }} {{ garage_config_dir }} {{ garage_data_dir }} {{ garage_metadata_dir }}
 LimitNOFILE=42000
 
 [Install]
