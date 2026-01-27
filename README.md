@@ -65,6 +65,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 | `garage_s3_web_bind_addr`     | `"[::]:3902"`                                                     | S3 web endpoint bind address                                                  |
 | `garage_s3_web_root_domain`   | `".web.garage.local"`                                             | Root domain for web endpoint                                                  |
 | `garage_admin_api_bind_addr`  | `"[::]:3903"`                                                     | Admin API bind address                                                        |
+| `garage_admin_healthcheck_host` | `"127.0.0.1"`                                                   | Host used for local health checks (IPv4/IPv6)                                 |
 | `garage_upgrade`              | `false`                                                           | Enable upgrade mode (compares versions, prevents downgrades)                  |
 | `garage_checksum`             | `""`                                                              | SHA256 checksum for binary verification (overrides built-in checksums)        |
 | `garage_config_template`      | `"garage.toml.j2"`                                                | Path to a custom TOML config template                                         |
@@ -85,6 +86,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 - The environment file is rendered only when `garage_env_variables` is non-empty and removed otherwise.
 - `garage_admin_token` and `garage_metrics_token` are only rendered in the config when defined and non-empty.
 - When `garage_upgrade` is `false` (default), the role only installs if the binary does not exist. Set to `true` to enable version comparison and upgrade.
+- Configuration and environment files are owned by `root` and the Garage group with group read access.
 
 ## Dependencies
 

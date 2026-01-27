@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `garage_checksum` variable for SHA256 checksum override
 - `garage_config_custom_options` for appending raw TOML lines to the default config template
 - `garage_env_variables` dict for variable-driven environment file generation
+- `garage_admin_healthcheck_host` variable to control health check host (IPv4/IPv6)
 - `vars/main.yml` with internal `garage_binary_path` and `_garage_known_checksums`
 - `tasks/validate.yml` with input validation (version format, rpc_secret, replication_factor, upgrade boolean)
 - `tasks/setup.yml` for system user/group and directory creation
@@ -45,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Download retries (3 attempts with 10-second delay)
 - `.ansible-lint`, `.editorconfig`, `.yamllint.yml`, `.gitignore` configuration files
 - Molecule cluster scenario with 3-node bootstrap_peers test
+- Molecule upgrade scenario with prepare stage (v2.0.0 -> v2.1.0)
 - CHANGELOG.md
 
 ### Changed
@@ -56,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split handlers into separate "Reload systemd" and "Restart garage"
 - Systemd unit now notifies both handlers on change
 - Environment file deployed/removed based on `garage_env_variables` dict (non-empty creates, empty removes)
+- Config directory now root-owned with group read access; config/env files owned by root with group read
+- Environment variable values now JSON-quoted to avoid parsing issues
+- Health check now derives port and uses configurable host (supports IPv6 bracket handling)
+- Added validation to ensure `garage_admin_api_bind_addr` includes a port
 - Molecule default scenario: single Debian 12 VM with 1024 MB, uses `roles:` syntax
 - Minimum Ansible version bumped to 2.16
 - Expanded supported platforms: ArchLinux, Debian, Ubuntu, EL (8/9/10), Fedora, opensuse

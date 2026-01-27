@@ -1,0 +1,10 @@
+---
+- name: Upgrade Garage to v2.1.0
+  hosts: all
+  become: true
+  vars:
+    garage_version: "v2.1.0"
+    garage_upgrade: true
+    garage_rpc_secret: "5a3d9d5edb6d3b3f3e9e8ff1c27c6ed0c5a2f41b7d1f7c4f0b8b6d9f2a1c3e5b"
+  roles:
+    - role: eyebrowkang.garage

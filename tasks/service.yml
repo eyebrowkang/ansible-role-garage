@@ -9,16 +9,30 @@
 - name: Flush handlers before health check
   ansible.builtin.meta: flush_handlers
 
+- name: Derive admin API port
+  ansible.builtin.set_fact:
+    _garage_admin_port: "{{ (garage_admin_api_bind_addr | regex_findall(':(\\d+)$')) | first | int }}"
+
+- name: Normalize healthcheck host
+  ansible.builtin.set_fact:
+    _garage_admin_healthcheck_host: "{{ garage_admin_healthcheck_host | regex_replace('^\\[(.*)\\]$', '\\1') }}"
+
+- name: Build healthcheck host for URL
+  ansible.builtin.set_fact:
+    _garage_admin_healthcheck_host_url: >-
+      {{ '[' ~ _garage_admin_healthcheck_host ~ ']' if ':' in _garage_admin_healthcheck_host else _garage_admin_healthcheck_host }}
+
 - name: Wait for Garage admin API to be ready
   ansible.builtin.wait_for:
-    port: "{{ garage_admin_api_bind_addr | regex_search(':([0-9]+)$', '\\1') | first }}"
+    host: "{{ _garage_admin_healthcheck_host }}"
+    port: "{{ _garage_admin_port }}"
     delay: 5
     timeout: 60
     state: started
 
 - name: Check Garage health endpoint
   ansible.builtin.uri:
-    url: "http://127.0.0.1:{{ garage_admin_api_bind_addr | regex_search(':([0-9]+)$', '\\1') | first }}/health"
+    url: "http://{{ _garage_admin_healthcheck_host_url }}:{{ _garage_admin_port }}/health"
     method: GET
     return_content: true
     status_code: 200

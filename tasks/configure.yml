@@ -3,24 +3,26 @@
   ansible.builtin.template:
     src: "{{ garage_config_template }}"
     dest: "{{ garage_config_dir }}/garage.toml"
-    owner: "{{ garage_user }}"
+    owner: root
     group: "{{ garage_group }}"
     mode: "0640"
   notify: Restart garage
+  no_log: true
 
 - name: Deploy environment file
   ansible.builtin.copy:
     content: |
       # Managed by Ansible
       {% for key, value in garage_env_variables.items() %}
-      {{ key }}={{ value }}
+      {{ key }}={{ value | to_json }}
       {% endfor %}
     dest: "{{ garage_config_dir }}/garage.env"
-    owner: "{{ garage_user }}"
+    owner: root
     group: "{{ garage_group }}"
     mode: "0640"
   when: garage_env_variables | default({}, true) | length > 0
   notify: Restart garage
+  no_log: true
 
 - name: Remove environment file when no variables are set
   ansible.builtin.file:

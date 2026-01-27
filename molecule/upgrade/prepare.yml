@@ -1,0 +1,35 @@
+---
+- name: Prepare base install (v2.0.0)
+  hosts: all
+  become: true
+  vars:
+    garage_version: "v2.0.0"
+    garage_rpc_secret: "5a3d9d5edb6d3b3f3e9e8ff1c27c6ed0c5a2f41b7d1f7c4f0b8b6d9f2a1c3e5b"
+  roles:
+    - role: eyebrowkang.garage
+  tasks:
+    - name: Get Garage status
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml status
+      register: garage_status
+      changed_when: false
+
+    - name: Extract node ID
+      ansible.builtin.set_fact:
+        garage_node_id: "{{ garage_status.stdout | regex_search('[0-9a-f-]{16}') }}"
+
+    - name: Assert node ID is found
+      ansible.builtin.assert:
+        that:
+          - garage_node_id is not none
+        fail_msg: "Could not parse node ID from 'garage status' output"
+
+    - name: Assign node to layout
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml layout assign -z dc1 -c 1G {{ garage_node_id }}
+      changed_when: true
+
+    - name: Apply layout
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml layout apply --version 1
+      changed_when: true

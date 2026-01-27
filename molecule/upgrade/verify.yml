@@ -1,0 +1,38 @@
+---
+- name: Verify upgrade
+  hosts: all
+  become: true
+  tasks:
+    - name: Check Garage version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --version
+      register: garage_version
+      changed_when: false
+
+    - name: Assert version is v2.1.0
+      ansible.builtin.assert:
+        that:
+          - garage_version.stdout is search('2\\.1\\.0')
+        fail_msg: "Garage version is not v2.1.0 (got: {{ garage_version.stdout }})"
+
+    - name: Check Garage service is active
+      ansible.builtin.systemd_service:
+        name: garage
+      register: garage_service
+
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that:
+          - garage_service.status.ActiveState == "active"
+        fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
+
+    - name: Check backup binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/garage.bak
+      register: garage_backup
+
+    - name: Assert backup exists
+      ansible.builtin.assert:
+        that:
+          - garage_backup.stat.exists
+        fail_msg: "Backup binary not found at /usr/local/bin/garage.bak"

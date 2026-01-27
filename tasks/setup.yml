@@ -20,7 +20,15 @@
     shell: /sbin/nologin
     state: present
 
-- name: Create required directories
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: "{{ garage_config_dir }}"
+    state: directory
+    owner: root
+    group: "{{ garage_group }}"
+    mode: "0750"
+
+- name: Create data directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -28,6 +36,5 @@
     group: "{{ garage_group }}"
     mode: "0755"
   loop:
-    - "{{ garage_config_dir }}"
     - "{{ garage_data_dir }}"
     - "{{ garage_metadata_dir }}"
