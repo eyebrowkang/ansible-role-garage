@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    garage_rpc_secret: "6c2b1e9f6f7085c1192a4a7ad52dd7f3f5b0b5f8f1f2f3a4b5c6d7e8f9a0b1c2"
+    garage_data_dirs:
+      - path: "/mnt/garage-d1"
+        capacity: "10G"
+      - path: "/mnt/garage-d2"
+        capacity: "10G"
+  roles:
+    - role: eyebrowkang.garage

@@ -1,0 +1,87 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check Garage binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/garage
+      register: garage_binary
+
+    - name: Assert binary exists
+      ansible.builtin.assert:
+        that:
+          - garage_binary.stat.exists
+          - garage_binary.stat.executable
+        fail_msg: "Garage binary not found or not executable"
+
+    - name: Check Garage service is active
+      ansible.builtin.systemd_service:
+        name: garage
+      register: garage_service
+
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that:
+          - garage_service.status.ActiveState == "active"
+        fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
+
+    - name: Verify data_dir array in config
+      ansible.builtin.command:
+        cmd: grep -c "data_dir = \[" /etc/garage/garage.toml
+      register: data_dir_array
+      changed_when: false
+
+    - name: Assert data_dir array is present
+      ansible.builtin.assert:
+        that:
+          - data_dir_array.stdout | int > 0
+        fail_msg: "data_dir array not found in config"
+
+    - name: Verify multi-disk paths in config
+      ansible.builtin.command:
+        cmd: grep -c "/mnt/garage-d1" /etc/garage/garage.toml
+      register: disk1_path
+      changed_when: false
+
+    - name: Assert disk1 path is present
+      ansible.builtin.assert:
+        that:
+          - disk1_path.stdout | int > 0
+        fail_msg: "disk1 path not found in config"
+
+    - name: Verify disk2 path in config
+      ansible.builtin.command:
+        cmd: grep -c "/mnt/garage-d2" /etc/garage/garage.toml
+      register: disk2_path
+      changed_when: false
+
+    - name: Assert disk2 path is present
+      ansible.builtin.assert:
+        that:
+          - disk2_path.stdout | int > 0
+        fail_msg: "disk2 path not found in config"
+
+    - name: Verify ReadWritePaths contains disk1
+      ansible.builtin.command:
+        cmd: grep -c "ReadWritePaths=.*\/mnt\/garage-d1" /etc/systemd/system/garage.service
+      register: rwpaths_disk1
+      changed_when: false
+
+    - name: Assert ReadWritePaths contains disk1
+      ansible.builtin.assert:
+        that:
+          - rwpaths_disk1.stdout | int > 0
+        fail_msg: "ReadWritePaths missing disk1"
+
+    - name: Verify ReadWritePaths contains disk2
+      ansible.builtin.command:
+        cmd: grep -c "ReadWritePaths=.*\/mnt\/garage-d2" /etc/systemd/system/garage.service
+      register: rwpaths_disk2
+      changed_when: false
+
+    - name: Assert ReadWritePaths contains disk2
+      ansible.builtin.assert:
+        that:
+          - rwpaths_disk2.stdout | int > 0
+        fail_msg: "ReadWritePaths missing disk2"
