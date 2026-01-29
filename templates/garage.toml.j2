@@ -2,15 +2,73 @@
 # https://garagehq.deuxfleurs.fr/documentation/reference-manual/configuration/
 
 replication_factor = {{ garage_replication_factor }}
+{% if garage_consistency_mode | default('') | length > 0 %}
+consistency_mode = "{{ garage_consistency_mode }}"
+{% endif %}
 
 metadata_dir = "{{ garage_metadata_dir }}"
 data_dir = "{{ garage_data_dir }}"
+{% if garage_metadata_snapshots_dir | default('') | length > 0 %}
+metadata_snapshots_dir = "{{ garage_metadata_snapshots_dir }}"
+{% endif %}
+{% if garage_metadata_fsync is not none %}
+metadata_fsync = {{ garage_metadata_fsync | to_json }}
+{% endif %}
+{% if garage_data_fsync is not none %}
+data_fsync = {{ garage_data_fsync | to_json }}
+{% endif %}
+{% if garage_disable_scrub is not none %}
+disable_scrub = {{ garage_disable_scrub | to_json }}
+{% endif %}
+{% if garage_use_local_tz is not none %}
+use_local_tz = {{ garage_use_local_tz | to_json }}
+{% endif %}
+{% if garage_metadata_auto_snapshot_interval | default('') | length > 0 %}
+metadata_auto_snapshot_interval = "{{ garage_metadata_auto_snapshot_interval }}"
+{% endif %}
 
+# Storage engine settings
 db_engine = "{{ garage_db_engine }}"
+{% if garage_lmdb_map_size | default('') | length > 0 %}
+lmdb_map_size = "{{ garage_lmdb_map_size }}"
+{% endif %}
+{% if garage_compression_level is not none %}
+compression_level = {{ garage_compression_level | to_json }}
+{% endif %}
 
+{% if garage_block_size | default('') | length > 0 %}
+block_size = "{{ garage_block_size }}"
+{% endif %}
+{% if garage_block_ram_buffer_max | default('') | length > 0 %}
+block_ram_buffer_max = "{{ garage_block_ram_buffer_max }}"
+{% endif %}
+{% if garage_block_max_concurrent_reads is not none %}
+block_max_concurrent_reads = {{ garage_block_max_concurrent_reads | to_json }}
+{% endif %}
+{% if garage_block_max_concurrent_writes_per_request is not none %}
+block_max_concurrent_writes_per_request = {{ garage_block_max_concurrent_writes_per_request | to_json }}
+{% endif %}
+
+# RPC
+{% if garage_rpc_secret_file | default('') | length > 0 %}
+rpc_secret_file = "{{ garage_rpc_secret_file }}"
+{% else %}
 rpc_secret = "{{ garage_rpc_secret }}"
+{% endif %}
 rpc_bind_addr = "{{ garage_rpc_bind_addr }}"
 rpc_public_addr = "{{ garage_rpc_public_addr }}"
+{% if garage_rpc_bind_outgoing is not none %}
+rpc_bind_outgoing = {{ garage_rpc_bind_outgoing | to_json }}
+{% endif %}
+{% if garage_rpc_public_addr_subnet | default('') | length > 0 %}
+rpc_public_addr_subnet = "{{ garage_rpc_public_addr_subnet }}"
+{% endif %}
+{% if garage_allow_world_readable_secrets is not none %}
+allow_world_readable_secrets = {{ garage_allow_world_readable_secrets | to_json }}
+{% endif %}
+{% if garage_allow_punycode is not none %}
+allow_punycode = {{ garage_allow_punycode | to_json }}
+{% endif %}
 {% if garage_bootstrap_peers | default([]) | length > 0 %}
 
 bootstrap_peers = {{ garage_bootstrap_peers | to_json }}
@@ -24,16 +82,93 @@ root_domain = "{{ garage_s3_root_domain }}"
 [s3_web]
 bind_addr = "{{ garage_s3_web_bind_addr }}"
 root_domain = "{{ garage_s3_web_root_domain }}"
+{% if garage_s3_web_add_host_to_metrics is not none %}
+add_host_to_metrics = {{ garage_s3_web_add_host_to_metrics | to_json }}
+{% endif %}
 
 [admin]
 api_bind_addr = "{{ garage_admin_api_bind_addr }}"
-{% if garage_admin_token | default('') | length > 0 %}
+{% if garage_admin_token_file | default('') | length > 0 %}
+admin_token_file = "{{ garage_admin_token_file }}"
+{% elif garage_admin_token | default('') | length > 0 %}
 admin_token = "{{ garage_admin_token }}"
 {% endif %}
-{% if garage_metrics_token | default('') | length > 0 %}
+{% if garage_metrics_token_file | default('') | length > 0 %}
+metrics_token_file = "{{ garage_metrics_token_file }}"
+{% elif garage_metrics_token | default('') | length > 0 %}
 metrics_token = "{{ garage_metrics_token }}"
 {% endif %}
-{% set _custom_options = garage_config_custom_options | default('') %}
-{% if _custom_options | trim | length > 0 %}
-{{ _custom_options }}
+{% if garage_admin_metrics_require_token is not none %}
+metrics_require_token = {{ garage_admin_metrics_require_token | to_json }}
+{% endif %}
+{% if garage_admin_trace_sink | default('') | length > 0 %}
+trace_sink = "{{ garage_admin_trace_sink }}"
+{% endif %}
+
+{% set _consul_enabled = (
+  garage_consul_discovery_api | default('') | length > 0
+  or garage_consul_discovery_consul_http_addr | default('') | length > 0
+  or garage_consul_discovery_tls_skip_verify is not none
+  or garage_consul_discovery_service_name | default('') | length > 0
+  or garage_consul_discovery_ca_cert | default('') | length > 0
+  or garage_consul_discovery_client_cert | default('') | length > 0
+  or garage_consul_discovery_client_key | default('') | length > 0
+  or garage_consul_discovery_token | default('') | length > 0
+  or garage_consul_discovery_tags | default([]) | length > 0
+  or garage_consul_discovery_meta | default({}) | length > 0
+  or garage_consul_discovery_datacenters | default([]) | length > 0
+) %}
+{% if _consul_enabled %}
+[consul_discovery]
+{% if garage_consul_discovery_api | default('') | length > 0 %}
+api = "{{ garage_consul_discovery_api }}"
+{% endif %}
+{% if garage_consul_discovery_consul_http_addr | default('') | length > 0 %}
+consul_http_addr = "{{ garage_consul_discovery_consul_http_addr }}"
+{% endif %}
+{% if garage_consul_discovery_tls_skip_verify is not none %}
+tls_skip_verify = {{ garage_consul_discovery_tls_skip_verify | to_json }}
+{% endif %}
+{% if garage_consul_discovery_service_name | default('') | length > 0 %}
+service_name = "{{ garage_consul_discovery_service_name }}"
+{% endif %}
+{% if garage_consul_discovery_ca_cert | default('') | length > 0 %}
+ca_cert = "{{ garage_consul_discovery_ca_cert }}"
+{% endif %}
+{% if garage_consul_discovery_client_cert | default('') | length > 0 %}
+client_cert = "{{ garage_consul_discovery_client_cert }}"
+{% endif %}
+{% if garage_consul_discovery_client_key | default('') | length > 0 %}
+client_key = "{{ garage_consul_discovery_client_key }}"
+{% endif %}
+{% if garage_consul_discovery_token | default('') | length > 0 %}
+token = "{{ garage_consul_discovery_token }}"
+{% endif %}
+{% if garage_consul_discovery_tags | default([]) | length > 0 %}
+tags = {{ garage_consul_discovery_tags | to_json }}
+{% endif %}
+{% if garage_consul_discovery_meta | default({}) | length > 0 %}
+meta = { {% for key, value in garage_consul_discovery_meta | dictsort %}{{ key }} = {{ value | to_json }}{% if not loop.last %}, {% endif %}{% endfor %} }
+{% endif %}
+{% if garage_consul_discovery_datacenters | default([]) | length > 0 %}
+datacenters = {{ garage_consul_discovery_datacenters | to_json }}
+{% endif %}
+{% endif %}
+
+{% set _kube_enabled = (
+  garage_kubernetes_discovery_namespace | default('') | length > 0
+  or garage_kubernetes_discovery_service_name | default('') | length > 0
+  or garage_kubernetes_discovery_skip_crd is not none
+) %}
+{% if _kube_enabled %}
+[kubernetes_discovery]
+{% if garage_kubernetes_discovery_namespace | default('') | length > 0 %}
+namespace = "{{ garage_kubernetes_discovery_namespace }}"
+{% endif %}
+{% if garage_kubernetes_discovery_service_name | default('') | length > 0 %}
+service_name = "{{ garage_kubernetes_discovery_service_name }}"
+{% endif %}
+{% if garage_kubernetes_discovery_skip_crd is not none %}
+skip_crd = {{ garage_kubernetes_discovery_skip_crd | to_json }}
+{% endif %}
 {% endif %}

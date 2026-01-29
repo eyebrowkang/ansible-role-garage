@@ -7,7 +7,6 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory={{ garage_home }}
-Environment="GARAGE_LOG_TO_JOURNALD=1"
 {% if garage_env_variables | default({}, true) | length > 0 %}
 EnvironmentFile=-{{ garage_config_dir }}/garage.env
 {% endif %}

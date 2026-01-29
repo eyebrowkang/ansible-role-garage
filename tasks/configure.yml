@@ -13,7 +13,7 @@
   ansible.builtin.copy:
     content: |
       # Managed by Ansible
-      {% for key, value in garage_env_variables.items() %}
+      {% for key, value in garage_env_variables | default({}, true) | dictsort %}
       {{ key }}={{ value | to_json }}
       {% endfor %}
     dest: "{{ garage_config_dir }}/garage.env"

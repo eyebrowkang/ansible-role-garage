@@ -5,11 +5,11 @@
       - garage_version is match('^v')
     fail_msg: "garage_version must start with 'v' (got '{{ garage_version }}')"
 
-- name: Validate garage_rpc_secret is set
+- name: Validate garage_rpc_secret or garage_rpc_secret_file is set
   ansible.builtin.assert:
     that:
-      - garage_rpc_secret | default('') | length > 0
-    fail_msg: "garage_rpc_secret must be defined and non-empty"
+      - (garage_rpc_secret | default('') | length > 0) or (garage_rpc_secret_file | default('') | length > 0)
+    fail_msg: "garage_rpc_secret or garage_rpc_secret_file must be defined and non-empty"
 
 - name: Validate garage_replication_factor is a positive integer
   ansible.builtin.assert:

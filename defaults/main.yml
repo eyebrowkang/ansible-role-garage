@@ -10,13 +10,31 @@ garage_metadata_dir: "{{ garage_home }}/meta"
 
 garage_db_engine: "lmdb"
 garage_replication_factor: 1
+garage_consistency_mode: ""
+garage_metadata_snapshots_dir: ""
+garage_metadata_fsync: null
+garage_data_fsync: null
+garage_disable_scrub: null
+garage_use_local_tz: null
+garage_metadata_auto_snapshot_interval: ""
+garage_block_size: ""
+garage_block_ram_buffer_max: ""
+garage_block_max_concurrent_reads: null
+garage_block_max_concurrent_writes_per_request: null
+garage_lmdb_map_size: ""
+garage_compression_level: null
 
 # RPC
 # Generate with: openssl rand -hex 32
 garage_rpc_secret: ""
+garage_rpc_secret_file: ""
 garage_rpc_bind_addr: "[::]:3901"
 garage_rpc_public_addr: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}:3901"
+garage_rpc_bind_outgoing: null
+garage_rpc_public_addr_subnet: ""
 garage_bootstrap_peers: []
+garage_allow_world_readable_secrets: null
+garage_allow_punycode: null
 
 # S3 API
 garage_s3_region: "garage"
@@ -26,12 +44,35 @@ garage_s3_root_domain: ".s3.garage.local"
 # S3 Web
 garage_s3_web_bind_addr: "[::]:3902"
 garage_s3_web_root_domain: ".web.garage.local"
+garage_s3_web_add_host_to_metrics: null
 
 # Admin
 garage_admin_api_bind_addr: "[::]:3903"
 garage_admin_healthcheck_host: "127.0.0.1"
-# garage_admin_token: ""
-# garage_metrics_token: ""
+garage_admin_token: ""
+garage_admin_token_file: ""
+garage_metrics_token: ""
+garage_metrics_token_file: ""
+garage_admin_metrics_require_token: null
+garage_admin_trace_sink: ""
+
+# Consul discovery
+garage_consul_discovery_api: ""
+garage_consul_discovery_consul_http_addr: ""
+garage_consul_discovery_tls_skip_verify: null
+garage_consul_discovery_service_name: ""
+garage_consul_discovery_ca_cert: ""
+garage_consul_discovery_client_cert: ""
+garage_consul_discovery_client_key: ""
+garage_consul_discovery_token: ""
+garage_consul_discovery_tags: []
+garage_consul_discovery_meta: {}
+garage_consul_discovery_datacenters: []
+
+# Kubernetes discovery
+garage_kubernetes_discovery_namespace: ""
+garage_kubernetes_discovery_service_name: ""
+garage_kubernetes_discovery_skip_crd: null
 
 # Upgrade control
 garage_upgrade: false
@@ -39,5 +80,5 @@ garage_checksum: ""
 
 # Configuration
 garage_config_template: "garage.toml.j2"
-garage_config_custom_options: ""
-garage_env_variables: {}
+garage_env_variables:
+  GARAGE_LOG_TO_JOURNALD: "1"

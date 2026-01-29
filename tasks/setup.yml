@@ -1,9 +1,4 @@
 ---
-- name: Install acl package (required for become_user)
-  ansible.builtin.package:
-    name: acl
-    state: present
-
 - name: Create garage group
   ansible.builtin.group:
     name: "{{ garage_group }}"

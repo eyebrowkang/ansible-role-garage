@@ -15,7 +15,7 @@
 
 - name: Install
   ansible.builtin.include_tasks: install.yml
-  when: not (garage_upgrade | bool)
+  when: not (garage_upgrade | bool) or (_garage_install_needed | default(false) | bool)
 
 - name: Configure
   ansible.builtin.include_tasks: configure.yml
