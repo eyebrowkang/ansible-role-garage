@@ -30,7 +30,7 @@
     owner: "{{ garage_user }}"
     group: "{{ garage_group }}"
     mode: "0755"
-  loop:
+  loop: >-
     {{
       (garage_data_dirs | default([]) | length > 0)
       | ternary(garage_data_dirs, [garage_data_dir])
