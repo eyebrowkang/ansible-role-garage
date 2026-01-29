@@ -25,11 +25,14 @@
 
 - name: Create data directories
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ item.path if item is mapping else item }}"
     state: directory
     owner: "{{ garage_user }}"
     group: "{{ garage_group }}"
     mode: "0755"
   loop:
-    - "{{ garage_data_dir }}"
-    - "{{ garage_metadata_dir }}"
+    {{
+      (garage_data_dirs | default([]) | length > 0)
+      | ternary(garage_data_dirs, [garage_data_dir])
+      + [garage_metadata_dir]
+    }}

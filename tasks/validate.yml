@@ -17,6 +17,12 @@
       - garage_replication_factor | int > 0
     fail_msg: "garage_replication_factor must be a positive integer (got '{{ garage_replication_factor }}')"
 
+- name: Validate garage_data_dir/garage_data_dirs usage
+  ansible.builtin.assert:
+    that:
+      - (garage_data_dir | default('') | length > 0) or (garage_data_dirs | default([]) | length > 0)
+    fail_msg: "Set either garage_data_dir or garage_data_dirs"
+
 - name: Validate garage_admin_api_bind_addr includes port
   ansible.builtin.assert:
     that:
