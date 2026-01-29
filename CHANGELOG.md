@@ -17,4 +17,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-disk data directory support with ReadWritePaths wiring.
 - Optional admin API health check after service start (enabled by default).
 
-[1.0.0]: https://github.com/eyebrowkang/ansible-role-garage/releases/tag/1.0.0
+[1.0.0]: https://github.com/eyebrowkang/ansible-role-garage/releases/tag/v1.0.0
