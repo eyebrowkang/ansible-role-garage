@@ -11,9 +11,9 @@ WorkingDirectory={{ garage_home }}
 EnvironmentFile=-{{ garage_config_dir }}/garage.env
 {% endif %}
 {% set _data_dirs = (garage_data_dirs | default([]) | length > 0) | ternary(garage_data_dirs, [garage_data_dir]) %}
-{% set _data_paths = [] %}
+{% set ns = namespace(paths=[]) %}
 {% for item in _data_dirs %}
-{% set _data_paths = _data_paths + [item.path if item is mapping else item] %}
+{% set ns.paths = ns.paths + [item.path if item is mapping else item] %}
 {% endfor %}
 ExecStart={{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml server
 User={{ garage_user }}
@@ -27,7 +27,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths={{ garage_home }} {{ _data_paths | join(' ') }} {{ garage_metadata_dir }}
+ReadWritePaths={{ garage_home }} {{ ns.paths | join(' ') }} {{ garage_metadata_dir }}
 LimitNOFILE=42000
 
 [Install]

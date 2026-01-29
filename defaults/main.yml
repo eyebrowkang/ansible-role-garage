@@ -39,6 +39,7 @@ garage_metrics_token_file: ""
 
 # Upgrade control
 garage_upgrade: false
+garage_upgrade_precheck: true
 garage_checksum: ""
 
 # Configuration

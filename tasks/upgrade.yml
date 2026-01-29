@@ -12,6 +12,32 @@
                  and _garage_arch in _garage_known_checksums[garage_version]
          else "" }}
 
+- name: Check Garage cluster status before upgrade
+  ansible.builtin.command:
+    cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml status"
+  register: _garage_upgrade_status
+  changed_when: false
+  when: garage_upgrade_precheck | bool
+
+- name: Run pre-upgrade repair (tables)
+  ansible.builtin.command:
+    cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml repair --all-nodes --yes tables"
+  register: _garage_upgrade_repair
+  changed_when: false
+  when: garage_upgrade_precheck | bool
+
+- name: Show repair workers
+  ansible.builtin.command:
+    cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml worker list"
+  register: _garage_upgrade_workers
+  changed_when: false
+  when: garage_upgrade_precheck | bool
+
+- name: Display repair workers output
+  ansible.builtin.debug:
+    msg: "{{ _garage_upgrade_workers.stdout | default('') }}"
+  when: garage_upgrade_precheck | bool
+
 - name: Stop Garage service before upgrade
   ansible.builtin.systemd_service:
     name: garage

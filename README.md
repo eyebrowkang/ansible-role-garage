@@ -69,6 +69,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 | `garage_admin_api_bind_addr`    | `"[::]:3903"`                                                       | Admin API bind address                                                                      |
 | `garage_admin_healthcheck_host` | `"127.0.0.1"`                                                       | Host used for local health checks (IPv4/IPv6)                                               |
 | `garage_upgrade`                | `false`                                                             | Enable upgrade mode (upgrades only when target > current; prevents downgrades)              |
+| `garage_upgrade_precheck`       | `true`                                                              | Run pre-upgrade status/repair checks for minor upgrades                                     |
 | `garage_checksum`               | `""`                                                                | SHA256 checksum for binary verification (overrides built-in checksums)                      |
 | `garage_config_template`        | `"garage.toml.j2"`                                                  | Path to a custom TOML config template                                                       |
 | `garage_env_variables`          | `{ GARAGE_LOG_TO_JOURNALD: "1" }`                                   | Dict of environment variables for `garage.env` (set `{}` to disable the env file)           |
@@ -92,6 +93,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 - When `*_file` secrets are set, they take precedence over the inline token/secret values.
 - `garage_admin_token`/`garage_admin_token_file` and `garage_metrics_token`/`garage_metrics_token_file` are only rendered in the config when defined and non-empty.
 - When `garage_upgrade` is `false` (default), the role only installs if the binary does not exist. When `true`, it upgrades only if the target version is newer (binary missing triggers a fresh install).
+- The role supports minor upgrades only (same major version). For major upgrades, follow the official Garage upgrade guide and upgrade manually.
 - Configuration and environment files are owned by `root` and the Garage group with group read access.
 - Set `garage_data_dirs` for multi-disk; it takes precedence over `garage_data_dir`. Entries can be simple paths or maps; use `capacity` for writable disks and omit it for `read_only` entries.
 
@@ -175,6 +177,7 @@ None.
   vars:
     garage_version: "v2.1.0"
     garage_upgrade: true
+    garage_upgrade_precheck: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
   roles:
     - eyebrowkang.garage

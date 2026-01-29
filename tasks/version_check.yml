@@ -16,6 +16,25 @@
   ansible.builtin.debug:
     msg: "Current: {{ _garage_current_version | default('not installed') }} -> Target: {{ garage_version }}"
 
+- name: Parse target major version
+  ansible.builtin.set_fact:
+    _garage_target_major: "{{ (garage_version | regex_search('^v(\\d+)')) | int }}"
+
+- name: Parse current major version
+  ansible.builtin.set_fact:
+    _garage_current_major: "{{ (_garage_current_version | regex_search('^v(\\d+)')) | int }}"
+  when: _garage_current_version_output.rc == 0
+
+- name: Fail if major version upgrade is attempted
+  ansible.builtin.fail:
+    msg: >-
+      Major version upgrade detected (current {{ _garage_current_version }}
+      -> target {{ garage_version }}). Please follow the official Garage upgrade
+      guide and upgrade manually instead of using this role.
+  when:
+    - _garage_current_version_output.rc == 0
+    - _garage_current_major < _garage_target_major
+
 - name: Set install needed fact (binary not found)
   ansible.builtin.set_fact:
     _garage_install_needed: true
