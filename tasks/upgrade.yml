@@ -6,11 +6,12 @@
 - name: Compute effective checksum
   ansible.builtin.set_fact:
     _garage_effective_checksum: >-
-      {{ garage_checksum if garage_checksum != ""
+      {%- set _raw = (garage_checksum if garage_checksum != ""
          else _garage_known_checksums[garage_version][_garage_arch]
               if garage_version in _garage_known_checksums
                  and _garage_arch in _garage_known_checksums[garage_version]
-         else "" }}
+         else "") -%}
+      {{ _raw if _raw == "" or ":" in _raw else "sha256:" ~ _raw }}
 
 - name: Check Garage cluster status before upgrade
   ansible.builtin.command:
