@@ -14,13 +14,12 @@
           - garage_service.status.ActiveState == "active"
         fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
 
-    - name: Check health endpoint
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:3903/health"
-        method: GET
-        return_content: true
-        status_code: 200
-      register: health_check
+    - name: Check admin API port is listening
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 3903
+        timeout: 30
+        state: started
 
     - name: Run garage status command
       ansible.builtin.command:

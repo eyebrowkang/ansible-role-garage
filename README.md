@@ -11,7 +11,7 @@ This role automates the deployment of [Garage](https://garagehq.deuxfleurs.fr/),
 - SHA256 checksum verification (with support for custom checksums)
 - TOML configuration and environment file deployment
 - Systemd service setup and management
-- Optional health check verification via admin API (enabled by default)
+- Port listening verification after service start, with optional admin API health check
 - Upgrade flow with binary backup and service restart
 - Automatic version comparison to skip unnecessary upgrades and prevent downgrades
 - Cluster bootstrap configuration via `bootstrap_peers`
@@ -68,7 +68,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 | `garage_s3_web_root_domain`     | `""`                                                                | Root domain for web endpoint (set with bind addr to enable)                                 |
 | `garage_admin_api_bind_addr`    | `"[::]:3903"`                                                       | Admin API bind address                                                                      |
 | `garage_admin_healthcheck_host` | `"127.0.0.1"`                                                       | Host used for local health checks (IPv4/IPv6)                                               |
-| `garage_healthcheck_enabled`    | `true`                                                              | Enable admin API health check after service start                                           |
+| `garage_healthcheck_enabled`    | `false`                                                             | Enable admin API health check (port listening is always checked)                            |
 | `garage_upgrade`                | `false`                                                             | Enable upgrade mode (upgrades only when target > current; prevents downgrades)              |
 | `garage_upgrade_precheck`       | `true`                                                              | Run pre-upgrade status/repair checks for minor upgrades                                     |
 | `garage_checksum`               | `""`                                                                | SHA256 checksum for binary verification (overrides built-in checksums)                      |
@@ -96,7 +96,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 - When `garage_upgrade` is `false` (default), the role only installs if the binary does not exist. When `true`, it upgrades only if the target version is newer (binary missing triggers a fresh install).
 - The role supports minor upgrades only (same major version). For major upgrades, follow the official Garage upgrade guide and upgrade manually.
 - Configuration and environment files are owned by `root` and the Garage group with group read access.
-- The health check uses the admin API; set `garage_healthcheck_enabled: false` if your custom template disables or moves the admin API.
+- The role always verifies the admin API port is listening after service start. When `garage_healthcheck_enabled: true`, it additionally checks the `/health` endpoint (requires a configured layout; fresh installs without layout return 502).
 - If the requested version is not in the built-in checksums and `garage_checksum` is empty, the download skips checksum verification. Set `garage_checksum` for custom versions.
 - Set `garage_data_dirs` for multi-disk; it takes precedence over `garage_data_dir`. Entries can be simple paths or maps; set `read_only: true` explicitly for read-only disks (and omit `capacity` when read-only).
 

@@ -124,8 +124,8 @@ argument_specs:
 
       garage_healthcheck_enabled:
         type: bool
-        default: true
-        description: "Enable admin API health check after service start"
+        default: false
+        description: "Enable admin API health check after service start (requires configured layout; port listening is always checked)"
 
       garage_admin_token:
         type: str

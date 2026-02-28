@@ -32,7 +32,7 @@ garage_s3_web_root_domain: ""
 # Admin
 garage_admin_api_bind_addr: "[::]:3903"
 garage_admin_healthcheck_host: "127.0.0.1"
-garage_healthcheck_enabled: true
+garage_healthcheck_enabled: false
 garage_admin_token: ""
 garage_admin_token_file: ""
 garage_metrics_token: ""
