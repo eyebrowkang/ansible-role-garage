@@ -36,3 +36,62 @@
         that:
           - garage_backup.stat.exists
         fail_msg: "Backup binary not found at /usr/local/bin/garage.bak"
+
+    # Version parsing unit tests
+    - name: Test version parsing with v2.1.0 output
+      vars:
+        _test_stdout: "garage v2.1.0 [features: k2v, lmdb, sqlite, consul-discovery, kubernetes-discovery, metrics, telemetry-otlp, bundled-libs]"
+        _test_parsed: "v{{ _test_stdout | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+        _test_major: "{{ _test_parsed | regex_replace('^v(\\d+).*$', '\\1') | int }}"
+      ansible.builtin.assert:
+        that:
+          - _test_parsed == "v2.1.0"
+          - _test_major | int == 2
+        fail_msg: "Version parsing failed for v2.1.0: parsed={{ _test_parsed }}, major={{ _test_major }}"
+
+    - name: Test version parsing with v2.2.0 output
+      vars:
+        _test_stdout: >-
+          garage v2.2.0 [features: bundled-libs, consul-discovery, fjall,
+          journald, k2v, kubernetes-discovery, lmdb, metrics, sqlite, syslog,
+          telemetry-otlp]
+        _test_parsed: "v{{ _test_stdout | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+        _test_major: "{{ _test_parsed | regex_replace('^v(\\d+).*$', '\\1') | int }}"
+      ansible.builtin.assert:
+        that:
+          - _test_parsed == "v2.2.0"
+          - _test_major | int == 2
+        fail_msg: "Version parsing failed for v2.2.0: parsed={{ _test_parsed }}, major={{ _test_major }}"
+
+    - name: Test major version comparison logic
+      vars:
+        _v1: "v1.5.0"
+        _v2: "v2.0.0"
+        _v1_major: "{{ _v1 | regex_replace('^v(\\d+).*$', '\\1') | int }}"
+        _v2_major: "{{ _v2 | regex_replace('^v(\\d+).*$', '\\1') | int }}"
+      ansible.builtin.assert:
+        that:
+          - _v1_major | int == 1
+          - _v2_major | int == 2
+          - _v1_major | int < _v2_major | int
+        fail_msg: "Major version comparison failed: v1_major={{ _v1_major }}, v2_major={{ _v2_major }}"
+
+    - name: Test version comparison detects upgrade needed
+      vars:
+        _current: "v2.0.0"
+        _target: "v2.1.0"
+      ansible.builtin.assert:
+        that:
+          - _current is version(_target, '<')
+          - not (_current is version(_target, '>'))
+        fail_msg: "Version comparison logic failed for {{ _current }} -> {{ _target }}"
+
+    - name: Test version comparison detects same version
+      vars:
+        _current: "v2.1.0"
+        _target: "v2.1.0"
+      ansible.builtin.assert:
+        that:
+          - not (_current is version(_target, '<'))
+          - not (_current is version(_target, '>'))
+        fail_msg: "Same version comparison failed for {{ _current }}"

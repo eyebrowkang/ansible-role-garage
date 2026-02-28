@@ -1,0 +1,174 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure Garage Object Store
+    description:
+      - >-
+        An Ansible role to install, configure, and upgrade Garage Object Store
+        as a systemd service on Linux systems.
+    options:
+      garage_version:
+        type: str
+        default: "v2.0.0"
+        description: "Garage version to install/upgrade to (must start with 'v')"
+
+      garage_user:
+        type: str
+        default: "garage"
+        description: "System user to run Garage"
+
+      garage_group:
+        type: str
+        default: "garage"
+        description: "System group for Garage"
+
+      garage_home:
+        type: str
+        default: "/var/lib/garage"
+        description: "Home directory for the Garage user"
+
+      garage_config_dir:
+        type: str
+        default: "/etc/garage"
+        description: "Directory for configuration files"
+
+      garage_data_dir:
+        type: str
+        default: "{{ garage_home }}/data"
+        description: "Single data storage path"
+
+      garage_data_dirs:
+        type: list
+        elements: raw
+        default: []
+        description: "Multi-disk data directories (list of paths or {path, capacity?, read_only?})"
+
+      garage_metadata_dir:
+        type: str
+        default: "{{ garage_home }}/meta"
+        description: "Metadata storage path"
+
+      garage_db_engine:
+        type: str
+        default: "lmdb"
+        choices:
+          - lmdb
+          - sqlite
+        description: "Database engine"
+
+      garage_replication_factor:
+        type: int
+        default: 1
+        description: "Data redundancy level (1 for single node; 3 recommended for production)"
+
+      garage_rpc_secret:
+        type: str
+        default: ""
+        description: "Secret key for RPC communication between nodes. Generate with 'openssl rand -hex 32'."
+
+      garage_rpc_secret_file:
+        type: str
+        default: ""
+        description: "Path to a file containing the RPC secret (alternative to garage_rpc_secret)"
+
+      garage_rpc_bind_addr:
+        type: str
+        default: "[::]:3901"
+        description: "RPC bind address"
+
+      garage_rpc_public_addr:
+        type: str
+        default: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}:3901"
+        description: "RPC public address advertised to peers"
+
+      garage_bootstrap_peers:
+        type: list
+        elements: str
+        default: []
+        description: "List of peer addresses for cluster bootstrap"
+
+      garage_s3_region:
+        type: str
+        default: "garage"
+        description: "S3 region name"
+
+      garage_s3_api_bind_addr:
+        type: str
+        default: "[::]:3900"
+        description: "S3 API bind address"
+
+      garage_s3_root_domain:
+        type: str
+        default: ""
+        description: "Root domain for S3 bucket access (set to enable vhost-style)"
+
+      garage_s3_web_bind_addr:
+        type: str
+        default: ""
+        description: "S3 web endpoint bind address"
+
+      garage_s3_web_root_domain:
+        type: str
+        default: ""
+        description: "Root domain for web endpoint"
+
+      garage_admin_api_bind_addr:
+        type: str
+        default: "[::]:3903"
+        description: "Admin API bind address"
+
+      garage_admin_healthcheck_host:
+        type: str
+        default: "127.0.0.1"
+        description: "Host used for local health checks (IPv4/IPv6)"
+
+      garage_healthcheck_enabled:
+        type: bool
+        default: true
+        description: "Enable admin API health check after service start"
+
+      garage_admin_token:
+        type: str
+        default: ""
+        description: "Token for admin API access"
+
+      garage_admin_token_file:
+        type: str
+        default: ""
+        description: "File path for admin API token"
+
+      garage_metrics_token:
+        type: str
+        default: ""
+        description: "Token for metrics endpoint access"
+
+      garage_metrics_token_file:
+        type: str
+        default: ""
+        description: "File path for metrics token"
+
+      garage_upgrade:
+        type: bool
+        default: false
+        description: "Enable upgrade mode (upgrades only when target > current; prevents downgrades)"
+
+      garage_upgrade_precheck:
+        type: bool
+        default: true
+        description: "Run pre-upgrade status/repair checks for minor upgrades"
+
+      garage_checksum:
+        type: str
+        default: ""
+        description: "SHA256 checksum for binary verification (overrides built-in checksums)"
+
+      garage_config_template:
+        type: str
+        default: "garage.toml.j2"
+        description: "Path to a custom TOML config template"
+
+      garage_env_variables:
+        type: dict
+        default:
+          GARAGE_LOG_TO_JOURNALD: "1"
+        description: "Dict of environment variables for garage.env (set {} to disable the env file)"
