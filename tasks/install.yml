@@ -20,6 +20,16 @@
       {{ _raw if _raw == "" or ":" in _raw else "sha256:" ~ _raw }}
   when: not _garage_binary.stat.exists
 
+- name: Warn when no checksum is available for verification
+  ansible.builtin.debug:
+    msg: >-
+      No checksum available for {{ garage_version }} ({{ _garage_arch }}).
+      Binary will be downloaded without integrity verification.
+      Set garage_checksum to provide a SHA256 checksum.
+  when:
+    - not _garage_binary.stat.exists
+    - _garage_effective_checksum | default('') | trim == ''
+
 - name: Download Garage binary
   ansible.builtin.get_url:
     url: "https://garagehq.deuxfleurs.fr/_releases/{{ garage_version }}/{{ _garage_arch }}/garage"

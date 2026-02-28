@@ -18,11 +18,11 @@
 
 - name: Parse target major version
   ansible.builtin.set_fact:
-    _garage_target_major: "{{ (garage_version | regex_search('^v(\\d+)')) | int }}"
+    _garage_target_major: "{{ garage_version | regex_replace('^v(\\d+).*$', '\\1') | int }}"
 
 - name: Parse current major version
   ansible.builtin.set_fact:
-    _garage_current_major: "{{ (_garage_current_version | regex_search('^v(\\d+)')) | int }}"
+    _garage_current_major: "{{ _garage_current_version | regex_replace('^v(\\d+).*$', '\\1') | int }}"
   when: _garage_current_version_output.rc == 0
 
 - name: Fail if major version upgrade is attempted

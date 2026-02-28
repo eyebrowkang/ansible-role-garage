@@ -13,6 +13,14 @@
          else "") -%}
       {{ _raw if _raw == "" or ":" in _raw else "sha256:" ~ _raw }}
 
+- name: Warn when no checksum is available for verification
+  ansible.builtin.debug:
+    msg: >-
+      No checksum available for {{ garage_version }} ({{ _garage_arch }}).
+      Binary will be downloaded without integrity verification.
+      Set garage_checksum to provide a SHA256 checksum.
+  when: _garage_effective_checksum | default('') | trim == ''
+
 - name: Check Garage cluster status before upgrade
   ansible.builtin.command:
     cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml status"
@@ -51,18 +59,38 @@
     dest: "{{ garage_binary_path }}.bak"
     remote_src: true
     mode: "0755"
-  failed_when: false
 
-- name: Download new Garage binary
-  ansible.builtin.get_url:
-    url: "https://garagehq.deuxfleurs.fr/_releases/{{ garage_version }}/{{ _garage_arch }}/garage"
-    dest: "{{ garage_binary_path }}"
-    checksum: "{{ _garage_effective_checksum | default(omit, true) }}"
-    mode: "0755"
-    owner: root
-    group: root
-    force: true
-    timeout: 120
-  notify: Restart garage
-  retries: 3
-  delay: 10
+- name: Upgrade Garage binary
+  block:
+    - name: Download new Garage binary
+      ansible.builtin.get_url:
+        url: "https://garagehq.deuxfleurs.fr/_releases/{{ garage_version }}/{{ _garage_arch }}/garage"
+        dest: "{{ garage_binary_path }}"
+        checksum: "{{ _garage_effective_checksum | default(omit, true) }}"
+        mode: "0755"
+        owner: root
+        group: root
+        force: true
+        timeout: 120
+      notify: Restart garage
+      retries: 3
+      delay: 10
+  rescue:
+    - name: Restore previous Garage binary
+      ansible.builtin.copy:
+        src: "{{ garage_binary_path }}.bak"
+        dest: "{{ garage_binary_path }}"
+        remote_src: true
+        mode: "0755"
+
+    - name: Restart Garage service after rollback
+      ansible.builtin.systemd_service:
+        name: garage
+        state: started
+
+    - name: Fail with upgrade error
+      ansible.builtin.fail:
+        msg: >-
+          Garage binary download failed. Previous binary has been restored
+          and the service restarted. Check network connectivity and verify
+          the target version {{ garage_version }} exists.
