@@ -9,6 +9,13 @@
     _garage_arch: "{{ _garage_arch_map[ansible_architecture] | default('x86_64-unknown-linux-musl') }}"
   when: not _garage_binary.stat.exists
 
+- name: Compute effective download URL
+  ansible.builtin.set_fact:
+    _garage_download_url: >-
+      {{ garage_download_url if garage_download_url != ""
+         else "https://garagehq.deuxfleurs.fr/_releases/" ~ garage_version ~ "/" ~ _garage_arch ~ "/garage" }}
+  when: not _garage_binary.stat.exists
+
 - name: Compute effective checksum
   ansible.builtin.set_fact:
     _garage_effective_checksum: >-
@@ -30,16 +37,61 @@
     - not _garage_binary.stat.exists
     - _garage_effective_checksum | default('') | trim == ''
 
-- name: Download Garage binary
+- name: Download Garage binary (remote)
   ansible.builtin.get_url:
-    url: "https://garagehq.deuxfleurs.fr/_releases/{{ garage_version }}/{{ _garage_arch }}/garage"
+    url: "{{ _garage_download_url }}"
     dest: "{{ garage_binary_path }}"
     checksum: "{{ _garage_effective_checksum | default(omit, true) }}"
     mode: "0755"
     owner: root
     group: root
     timeout: 120
-  when: not _garage_binary.stat.exists
+  when:
+    - not _garage_binary.stat.exists
+    - not garage_download_local
   notify: Restart garage
   retries: 3
   delay: 10
+
+- name: Download and transfer Garage binary (local)
+  when:
+    - not _garage_binary.stat.exists
+    - garage_download_local
+  block:
+    - name: Create temporary directory on controller
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: garage_
+      delegate_to: localhost
+      become: false
+      register: _garage_local_tempdir
+
+    - name: Download Garage binary to controller
+      ansible.builtin.get_url:
+        url: "{{ _garage_download_url }}"
+        dest: "{{ _garage_local_tempdir.path }}/garage"
+        checksum: "{{ _garage_effective_checksum | default(omit, true) }}"
+        mode: "0755"
+        timeout: 120
+      delegate_to: localhost
+      become: false
+      retries: 3
+      delay: 10
+
+    - name: Copy Garage binary to remote host
+      ansible.builtin.copy:
+        src: "{{ _garage_local_tempdir.path }}/garage"
+        dest: "{{ garage_binary_path }}"
+        mode: "0755"
+        owner: root
+        group: root
+      notify: Restart garage
+
+  always:
+    - name: Clean up temporary directory on controller
+      ansible.builtin.file:
+        path: "{{ _garage_local_tempdir.path }}"
+        state: absent
+      delegate_to: localhost
+      become: false
+      when: _garage_local_tempdir.path is defined

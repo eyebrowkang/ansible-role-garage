@@ -20,7 +20,7 @@ This role automates the deployment of [Garage](https://garagehq.deuxfleurs.fr/),
 
 - Ansible >= 2.16
 - Target system with systemd support
-- Internet access for downloading Garage binary
+- Internet access for downloading Garage binary (on target or controller when using `garage_download_local`)
 
 ## Supported Platforms
 
@@ -72,6 +72,8 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 | `garage_upgrade`                | `false`                                                             | Enable upgrade mode (upgrades only when target > current; prevents downgrades)              |
 | `garage_upgrade_precheck`       | `true`                                                              | Run pre-upgrade status/repair checks for minor upgrades                                     |
 | `garage_checksum`               | `""`                                                                | SHA256 checksum for binary verification (overrides built-in checksums)                      |
+| `garage_download_url`           | `""`                                                                | Custom URL for binary download (overrides default release URL)                              |
+| `garage_download_local`         | `false`                                                             | Download binary via controller then transfer via SSH (useful for air-gapped networks)       |
 | `garage_config_template`        | `"garage.toml.j2"`                                                  | Path to a custom TOML config template                                                       |
 | `garage_env_variables`          | `{ GARAGE_LOG_TO_JOURNALD: "1" }`                                   | Dict of environment variables for `garage.env` (set `{}` to disable the env file)           |
 
