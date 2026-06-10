@@ -1,0 +1,36 @@
+---
+# Container-based scenario for CI (and local quick checks via `just ci-test`).
+# Uses systemd-enabled images; the deeper vagrant scenarios stay local-only.
+driver:
+  name: docker
+
+platforms:
+  - name: garage-${MOLECULE_DISTRO:-debian12}
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-debian12}-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    privileged: true
+    pre_build_image: true
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/.."
+  inventory:
+    group_vars:
+      all:
+        # The docker connection already runs as root, so become is a
+        # redundant sudo wrapper here — and sudo's PAM stack breaks
+        # intermittently in EL9 containers on GitHub runners
+        # ("PAM account management error: Authentication service cannot
+        # retrieve authentication info"). Connection variables override
+        # the play-level `become: true` keyword.
+        ansible_become: false
+  playbooks:
+    converge: ../default/converge.yml
+    verify: ../default/verify.yml
+
+verifier:
+  name: ansible
