@@ -50,13 +50,13 @@
     owner: root
     group: root
     timeout: 120
-  when: not garage_download_local
+  when: not (garage_download_local | bool)
   notify: Restart garage
   retries: 3
   delay: 10
 
 - name: Download and transfer Garage binary (local)
-  when: garage_download_local
+  when: garage_download_local | bool
   block:
     - name: Create temporary directory on controller
       ansible.builtin.tempfile:

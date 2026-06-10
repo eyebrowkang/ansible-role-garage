@@ -90,7 +90,7 @@
           {{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml
           layout assign
           -z {{ hostvars[item].garage_layout_zone | default(garage_layout_zone) }}
-          {% if hostvars[item].garage_layout_gateway | default(garage_layout_gateway) %}
+          {% if hostvars[item].garage_layout_gateway | default(garage_layout_gateway) | bool %}
           -g
           {% else %}
           -c {{ hostvars[item].garage_layout_capacity | default(garage_layout_capacity) }}
