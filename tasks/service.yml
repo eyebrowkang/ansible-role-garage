@@ -23,25 +23,6 @@
   ansible.builtin.wait_for:
     host: "{{ _garage_admin_healthcheck_host }}"
     port: "{{ _garage_admin_port }}"
-    delay: 5
+    delay: 1
     timeout: 60
     state: started
-
-- name: Run admin API health check
-  when: garage_healthcheck_enabled | bool
-  block:
-    - name: Build healthcheck host for URL
-      ansible.builtin.set_fact:
-        _garage_admin_healthcheck_host_url: >-
-          {{ '[' ~ _garage_admin_healthcheck_host ~ ']' if ':' in _garage_admin_healthcheck_host else _garage_admin_healthcheck_host }}
-
-    - name: Check Garage health endpoint
-      ansible.builtin.uri:
-        url: "http://{{ _garage_admin_healthcheck_host_url }}:{{ _garage_admin_port }}/health"
-        method: GET
-        return_content: true
-        status_code: 200
-      register: _garage_health_check
-      retries: 5
-      delay: 10
-      until: _garage_health_check.status == 200

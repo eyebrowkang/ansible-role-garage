@@ -6,22 +6,10 @@
     garage_rpc_secret: "ae6f6773bd8d1d26bf55843989d94642a0383e189f1fd5943d91a8ea0e565ac0"
     garage_replication_factor: 3
     garage_rpc_public_addr: "{{ ansible_default_ipv4.address }}:3901"
+    garage_cluster_connect: true
+    garage_layout_init: true
+    garage_layout_zone: dc1
+    garage_layout_capacity: 1G
+    garage_healthcheck_enabled: true
   roles:
     - role: eyebrowkang.garage
-  post_tasks:
-    # bootstrap_peers requires '<node public key>@<host>:<port>' and node keys
-    # only exist after first start, so bootstrap the mesh via 'node connect'.
-    # Garage persists known peers, making this a one-time operation.
-    - name: Get node identifier
-      ansible.builtin.command:
-        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml node id -q
-      register: _garage_node_id
-      changed_when: false
-
-    - name: Connect nodes to each other
-      ansible.builtin.command:
-        cmd: >-
-          /usr/local/bin/garage --config /etc/garage/garage.toml
-          node connect {{ hostvars[item]._garage_node_id.stdout }}
-      loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
-      changed_when: false

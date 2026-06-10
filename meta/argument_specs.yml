@@ -147,6 +147,43 @@ argument_specs:
         default: ""
         description: "File path for metrics token"
 
+      garage_cluster_connect:
+        type: bool
+        default: false
+        description: "Connect cluster nodes to each other via 'garage node connect' after service start (requires all nodes in the same play)"
+
+      garage_cluster_hosts:
+        type: list
+        elements: str
+        default: []
+        description: "Inventory hostnames forming the cluster (empty = all play hosts)"
+
+      garage_layout_init:
+        type: bool
+        default: false
+        description: "Initialize the FIRST cluster layout (version 0 -> 1) after connect; existing layouts are never modified"
+
+      garage_layout_zone:
+        type: str
+        default: ""
+        description: "Zone for this node's layout role (required when garage_layout_init is enabled; per-node via host_vars)"
+
+      garage_layout_capacity:
+        type: str
+        default: ""
+        description: "Storage capacity for this node, e.g. '1T' (exclusive with garage_layout_gateway)"
+
+      garage_layout_gateway:
+        type: bool
+        default: false
+        description: "Assign this node as a gateway (no storage capacity)"
+
+      garage_layout_tags:
+        type: list
+        elements: str
+        default: []
+        description: "Tags for this node's layout role"
+
       garage_upgrade:
         type: bool
         default: false
@@ -176,6 +213,11 @@ argument_specs:
         type: str
         default: "garage.toml.j2"
         description: "Path to a custom TOML config template"
+
+      garage_no_log:
+        type: bool
+        default: true
+        description: "Hide config/env deployment task output (set false to see diffs while debugging)"
 
       garage_env_variables:
         type: dict

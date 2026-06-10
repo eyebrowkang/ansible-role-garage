@@ -38,6 +38,24 @@ garage_admin_token_file: ""
 garage_metrics_token: ""
 garage_metrics_token_file: ""
 
+# Cluster bootstrap (enhancement, disabled by default)
+# Connects all play hosts (or garage_cluster_hosts) to each other via
+# 'garage node connect' after the service is up.
+garage_cluster_connect: false
+garage_cluster_hosts: []
+
+# Layout initialization (enhancement, disabled by default)
+# Applies the FIRST cluster layout only (layout version 0 -> 1); any later
+# layout change is an operator action and is never touched by this role.
+# Zone/capacity/tags are per-node values (set via host_vars for
+# heterogeneous nodes). Set garage_layout_gateway instead of a capacity
+# for gateway nodes.
+garage_layout_init: false
+garage_layout_zone: ""
+garage_layout_capacity: ""
+garage_layout_gateway: false
+garage_layout_tags: []
+
 # Upgrade control
 garage_upgrade: false
 garage_upgrade_precheck: true
@@ -49,5 +67,7 @@ garage_download_local: false
 
 # Configuration
 garage_config_template: "garage.toml.j2"
+# Set false to see config diffs while debugging (config contains secrets)
+garage_no_log: true
 garage_env_variables:
   GARAGE_LOG_TO_JOURNALD: "1"

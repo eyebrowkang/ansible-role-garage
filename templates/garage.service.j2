@@ -1,8 +1,10 @@
+{% set _data_dirs = (garage_data_dirs | default([]) | length > 0) | ternary(garage_data_dirs, [garage_data_dir]) %}
 [Unit]
 Description=Garage Object Storage Service
 Documentation=https://garagehq.deuxfleurs.fr/documentation/
 After=network.target network-online.target systemd-user-sessions.service
 Wants=network-online.target
+RequiresMountsFor={{ garage_home }}{% for item in _data_dirs %} {{ item.path if item is mapping else item }}{% endfor %} {{ garage_metadata_dir }}
 
 [Service]
 Type=simple
@@ -10,7 +12,6 @@ WorkingDirectory={{ garage_home }}
 {% if garage_env_variables | default({}, true) | length > 0 %}
 EnvironmentFile=-{{ garage_config_dir }}/garage.env
 {% endif %}
-{% set _data_dirs = (garage_data_dirs | default([]) | length > 0) | ternary(garage_data_dirs, [garage_data_dir]) %}
 ExecStart={{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml server
 User={{ garage_user }}
 Group={{ garage_group }}

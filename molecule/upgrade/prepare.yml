@@ -5,31 +5,59 @@
   vars:
     garage_version: "v2.0.0"
     garage_rpc_secret: "5a3d9d5edb6d3b3f3e9e8ff1c27c6ed0c5a2f41b7d1f7c4f0b8b6d9f2a1c3e5b"
+    garage_layout_init: true
+    garage_layout_zone: dc1
+    garage_layout_capacity: 1G
   roles:
     - role: eyebrowkang.garage
   tasks:
-    - name: Get Garage status
+    - name: Install boto3 for S3 probing
+      ansible.builtin.apt:
+        name: python3-boto3
+        state: present
+        update_cache: true
+
+    - name: Create test access key
       ansible.builtin.command:
-        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml status
-      register: garage_status
-      changed_when: false
-
-    - name: Extract node ID
-      ansible.builtin.set_fact:
-        garage_node_id: "{{ garage_status.stdout | regex_search('[0-9a-f-]{16}') }}"
-
-    - name: Assert node ID is found
-      ansible.builtin.assert:
-        that:
-          - garage_node_id is not none
-        fail_msg: "Could not parse node ID from 'garage status' output"
-
-    - name: Assign node to layout
-      ansible.builtin.command:
-        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml layout assign -z dc1 -c 1G {{ garage_node_id }}
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml key create molecule-test
+      register: key_out
       changed_when: true
 
-    - name: Apply layout
+    - name: Save credentials for later stages
+      ansible.builtin.copy:
+        content: >-
+          {{ key_out.stdout | regex_search('Key ID: +(\S+)', '\1') | first }}
+          {{ key_out.stdout | regex_search('Secret key: +(\S+)', '\1') | first }}
+        dest: /root/.molecule-s3-creds
+        mode: "0600"
+
+    - name: Create test bucket
       ansible.builtin.command:
-        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml layout apply --version 1
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml bucket create molecule-test
       changed_when: true
+
+    - name: Allow key on bucket
+      ansible.builtin.command:
+        cmd: >-
+          /usr/local/bin/garage --config /etc/garage/garage.toml
+          bucket allow --read --write molecule-test --key molecule-test
+      changed_when: true
+
+    - name: Write probe object via S3 API
+      ansible.builtin.command:
+        cmd: python3
+        stdin: |
+          import boto3
+          from botocore.config import Config
+          with open('/root/.molecule-s3-creds') as f:
+              key_id, secret = f.read().split()
+          s3 = boto3.client('s3', endpoint_url='http://127.0.0.1:3900',
+                            aws_access_key_id=key_id, aws_secret_access_key=secret,
+                            region_name='garage',
+                            config=Config(s3={'addressing_style': 'path'}))
+          s3.put_object(Bucket='molecule-test', Key='probe.txt',
+                        Body=b'upgrade-survival-probe')
+          print('probe object written')
+      register: probe_write
+      changed_when: true
+      failed_when: "'probe object written' not in probe_write.stdout"

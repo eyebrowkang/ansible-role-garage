@@ -1,0 +1,21 @@
+---
+# Runs after cluster connect / layout init: on Garage >= v2.2 the /health
+# endpoint returns 503 until a cluster layout is applied, so checking it
+# here lets garage_healthcheck_enabled be combined with garage_layout_init
+# on a fresh install.
+
+- name: Build healthcheck host for URL
+  ansible.builtin.set_fact:
+    _garage_admin_healthcheck_host_url: >-
+      {{ '[' ~ _garage_admin_healthcheck_host ~ ']' if ':' in _garage_admin_healthcheck_host else _garage_admin_healthcheck_host }}
+
+- name: Check Garage health endpoint
+  ansible.builtin.uri:
+    url: "http://{{ _garage_admin_healthcheck_host_url }}:{{ _garage_admin_port }}/health"
+    method: GET
+    return_content: true
+    status_code: 200
+  register: _garage_health_check
+  retries: 5
+  delay: 10
+  until: _garage_health_check.status == 200

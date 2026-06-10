@@ -23,6 +23,29 @@
       - (garage_data_dir | default('') | length > 0) or (garage_data_dirs | default([]) | length > 0)
     fail_msg: "Set either garage_data_dir or garage_data_dirs"
 
+- name: Validate garage_rpc_secret format
+  ansible.builtin.assert:
+    that:
+      - garage_rpc_secret is match('^[0-9a-fA-F]{64}$')
+    fail_msg: >-
+      garage_rpc_secret must be a 32-byte hex string (64 hex characters).
+      Generate one with: openssl rand -hex 32
+  when: garage_rpc_secret | default('') | length > 0
+
+- name: Validate s3 web options are set together
+  ansible.builtin.assert:
+    that:
+      - (garage_s3_web_bind_addr | default('') | length > 0) == (garage_s3_web_root_domain | default('') | length > 0)
+    fail_msg: >-
+      garage_s3_web_bind_addr and garage_s3_web_root_domain must be set
+      together — the [s3_web] section is only rendered when both are present.
+
+- name: Validate garage_data_dirs entry shape
+  ansible.builtin.assert:
+    that:
+      - garage_data_dirs | default([]) | select('mapping') | selectattr('path', 'undefined') | list | length == 0
+    fail_msg: "Every mapping entry in garage_data_dirs must define 'path'"
+
 - name: Validate garage_bootstrap_peers entry format
   ansible.builtin.assert:
     that:

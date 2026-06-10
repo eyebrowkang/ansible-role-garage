@@ -1,0 +1,27 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check Garage service is active
+      ansible.builtin.systemd_service:
+        name: garage
+      register: garage_service
+
+    - name: Assert service survived all negative tests
+      ansible.builtin.assert:
+        that:
+          - garage_service.status.ActiveState == "active"
+        fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
+
+    - name: Check installed version is unchanged (v2.3.0)
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --version
+      register: garage_version_out
+      changed_when: false
+
+    - name: Assert no downgrade/upgrade happened
+      ansible.builtin.assert:
+        that:
+          - garage_version_out.stdout is search('2\\.3\\.0')
+        fail_msg: "Version changed unexpectedly: {{ garage_version_out.stdout }}"
