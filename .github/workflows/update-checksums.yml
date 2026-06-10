@@ -37,6 +37,10 @@ jobs:
         if: steps.update.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
+          # Default GITHUB_TOKEN would not trigger the CI matrix on the
+          # created PR (and required checks would never run) — use the
+          # fine-grained PAT, falling back gracefully when unset.
+          token: ${{ secrets.AUTOMATION_TOKEN || github.token }}
           branch: auto/garage-${{ steps.update.outputs.version }}
           title: "feat: add Garage ${{ steps.update.outputs.version }} checksums"
           commit-message: "feat: add Garage ${{ steps.update.outputs.version }} checksums"

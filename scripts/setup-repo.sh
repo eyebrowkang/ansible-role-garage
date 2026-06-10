@@ -65,5 +65,8 @@ else
   echo "   created ruleset"
 fi
 
-echo ">> Done. Reminder: set the Galaxy token once per repo:"
-echo "   gh secret set GALAXY_API_KEY --repo $REPO"
+echo ">> Done. Reminder: set the secrets once per repo:"
+echo "   gh secret set GALAXY_API_KEY --repo $REPO    # Galaxy import"
+echo "   gh secret set AUTOMATION_TOKEN --repo $REPO  # fine-grained PAT (Contents/PRs/Issues RW)"
+echo "   Without AUTOMATION_TOKEN, bot-created PRs (release-please, checksums)"
+echo "   will not trigger the required CI checks."

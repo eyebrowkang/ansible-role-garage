@@ -47,6 +47,13 @@ release PR from the conventional commit history (version bump + CHANGELOG).
 the GitHub release, and the same workflow imports the role into Ansible
 Galaxy (`GALAXY_API_KEY` repo secret).
 
+### Required secrets
+
+| Secret             | Purpose                                                          |
+| ------------------ | ---------------------------------------------------------------- |
+| `GALAXY_API_KEY`   | Galaxy import on release                                          |
+| `AUTOMATION_TOKEN` | Fine-grained PAT (Contents, Pull requests, Issues — read/write). PRs created with the default `GITHUB_TOKEN` never trigger `pull_request` workflows, so without this token the release-please and checksum PRs would sit forever without their required CI checks. |
+
 ## Checksum updates
 
 A weekly workflow (`update-checksums.yml`) checks for new Garage releases,
