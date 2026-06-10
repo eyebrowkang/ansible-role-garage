@@ -1,6 +1,6 @@
 # ansible-role-garage
 
-An Ansible role to install, configure, and upgrade Garage Object Store as a systemd service on Linux systems.
+An Ansible role to install, configure, and upgrade Garage Object Storage as a systemd service on Linux systems.
 
 ## Description
 
