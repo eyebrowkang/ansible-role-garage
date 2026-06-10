@@ -1,6 +1,6 @@
 # Pinned CI tooling — keep in sync with the local ansible-dev environment.
 # Dependabot (pip ecosystem) opens PRs when new versions are released.
-ansible-core==2.19.3
+ansible-core==2.21.0
 ansible-lint==25.12.1
 molecule==26.4.0
 molecule-plugins[docker]==25.8.12
