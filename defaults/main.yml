@@ -1,5 +1,5 @@
 ---
-garage_version: "v2.0.0"
+garage_version: "v2.3.0"
 garage_user: "garage"
 garage_group: "garage"
 garage_home: "/var/lib/garage"

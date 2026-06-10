@@ -9,7 +9,7 @@ argument_specs:
     options:
       garage_version:
         type: str
-        default: "v2.0.0"
+        default: "v2.3.0"
         description: "Garage version to install/upgrade to (must start with 'v')"
 
       garage_user:
@@ -161,6 +161,16 @@ argument_specs:
         type: str
         default: ""
         description: "SHA256 checksum for binary verification (overrides built-in checksums)"
+
+      garage_download_url:
+        type: str
+        default: ""
+        description: "Custom URL for binary download (overrides default release URL)"
+
+      garage_download_local:
+        type: bool
+        default: false
+        description: "Download binary via controller then transfer via SSH (useful for air-gapped networks)"
 
       garage_config_template:
         type: str

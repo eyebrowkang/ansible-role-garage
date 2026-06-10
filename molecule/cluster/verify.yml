@@ -31,6 +31,15 @@
       ansible.builtin.debug:
         msg: "{{ garage_status.stdout }}"
 
+    - name: Assert all cluster nodes are connected and healthy
+      ansible.builtin.assert:
+        that:
+          - garage_status.stdout_lines | select('match', '^[0-9a-f]{16}\\s') | list | length == 3
+          - "'FAILED' not in garage_status.stdout"
+        fail_msg: >-
+          Expected 3 healthy nodes in 'garage status' output, got:
+          {{ garage_status.stdout }}
+
     - name: Verify replication_factor in config
       ansible.builtin.command:
         cmd: grep -c "replication_factor = 3" /etc/garage/garage.toml
@@ -42,15 +51,3 @@
         that:
           - replication_check.stdout | int > 0
         fail_msg: "replication_factor is not set to 3 in config"
-
-    - name: Verify bootstrap_peers in config
-      ansible.builtin.command:
-        cmd: grep -c "bootstrap_peers" /etc/garage/garage.toml
-      register: bootstrap_check
-      changed_when: false
-
-    - name: Assert bootstrap_peers is present
-      ansible.builtin.assert:
-        that:
-          - bootstrap_check.stdout | int > 0
-        fail_msg: "bootstrap_peers not found in config"

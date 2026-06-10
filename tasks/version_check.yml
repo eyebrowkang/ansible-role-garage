@@ -12,6 +12,16 @@
       v{{ _garage_current_version_output.stdout | regex_search('(\d+\.\d+\.\d+)') }}
   when: _garage_current_version_output.rc == 0
 
+- name: Validate current version was parsed
+  ansible.builtin.assert:
+    that:
+      - _garage_current_version is match('^v\\d+\\.\\d+\\.\\d+$')
+    fail_msg: >-
+      Could not parse the installed Garage version from
+      '{{ garage_binary_path }} --version' output:
+      '{{ _garage_current_version_output.stdout }}'
+  when: _garage_current_version_output.rc == 0
+
 - name: Display version information
   ansible.builtin.debug:
     msg: "Current: {{ _garage_current_version | default('not installed') }} -> Target: {{ garage_version }}"

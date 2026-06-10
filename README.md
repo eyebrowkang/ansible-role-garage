@@ -48,7 +48,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 
 | Variable                        | Default                                                             | Description                                                                                 |
 | ------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `garage_version`                | `"v2.0.0"`                                                          | Garage version to install/upgrade to (must start with `v`)                                  |
+| `garage_version`                | `"v2.3.0"`                                                          | Garage version to install/upgrade to (must start with `v`)                                  |
 | `garage_user`                   | `"garage"`                                                          | System user to run Garage                                                                   |
 | `garage_group`                  | `"garage"`                                                          | System group for Garage                                                                     |
 | `garage_home`                   | `"/var/lib/garage"`                                                 | Home directory for the Garage user                                                          |
@@ -98,7 +98,8 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 - When `garage_upgrade` is `false` (default), the role only installs if the binary does not exist. When `true`, it upgrades only if the target version is newer (binary missing triggers a fresh install).
 - The role supports minor upgrades only (same major version). For major upgrades, follow the official Garage upgrade guide and upgrade manually.
 - Configuration and environment files are owned by `root` and the Garage group with group read access.
-- The role always verifies the admin API port is listening after service start. When `garage_healthcheck_enabled: true`, it additionally checks the `/health` endpoint (requires a configured layout; fresh installs without layout return 502).
+- The role always verifies the admin API port is listening after service start. When `garage_healthcheck_enabled: true`, it additionally checks the `/health` endpoint. On recent Garage versions (>= v2.2) `/health` returns 503 until a cluster layout is configured, so keep it disabled for fresh installs and enable it after the layout is applied.
+- `garage_download_url` and `garage_download_local` apply to both installs and upgrades.
 - If the requested version is not in the built-in checksums and `garage_checksum` is empty, the download skips checksum verification. Set `garage_checksum` for custom versions.
 - Set `garage_data_dirs` for multi-disk; it takes precedence over `garage_data_dir`. Entries can be simple paths or maps; set `read_only: true` explicitly for read-only disks (and omit `capacity` when read-only).
 
@@ -120,7 +121,14 @@ None.
     - eyebrowkang.garage
 ```
 
-### Cluster with Bootstrap Peers
+### Cluster Deployment
+
+Garage only accepts `bootstrap_peers` entries in the `<node public key>@<host>:<port>`
+format — bare `host:port` entries are silently ignored (the role validates this).
+Node public keys are generated on each node's first start, so the simplest way to
+bootstrap a cluster is to deploy all nodes without `garage_bootstrap_peers` and
+connect them once afterwards. Garage persists known peers, so this is a one-time
+operation:
 
 ```yaml
 - name: Deploy Garage Cluster
@@ -130,12 +138,27 @@ None.
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
     garage_replication_factor: 3
     garage_rpc_public_addr: "{{ ansible_host }}:3901"
-    garage_bootstrap_peers: >-
-      {{ groups['storage_nodes'] | map('extract', hostvars, 'ansible_host')
-         | map('regex_replace', '^(.*)$', '\1:3901') | list }}
   roles:
     - eyebrowkang.garage
+  post_tasks:
+    - name: Get node identifier
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml node id -q
+      register: garage_node_id
+      changed_when: false
+
+    - name: Connect nodes to each other
+      ansible.builtin.command:
+        cmd: >-
+          /usr/local/bin/garage --config /etc/garage/garage.toml
+          node connect {{ hostvars[item].garage_node_id.stdout }}
+      loop: "{{ groups['storage_nodes'] | difference([inventory_hostname]) }}"
+      changed_when: false
 ```
+
+If you already know the node identifiers (e.g. re-deploying an existing cluster),
+you can set `garage_bootstrap_peers` with full `<node public key>@<host>:<port>`
+entries instead.
 
 ### Multiple Data Directories
 
@@ -180,7 +203,7 @@ None.
   hosts: storage
   become: true
   vars:
-    garage_version: "v2.1.0"
+    garage_version: "v2.3.0"
     garage_upgrade: true
     garage_upgrade_precheck: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"

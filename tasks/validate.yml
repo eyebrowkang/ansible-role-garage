@@ -23,6 +23,17 @@
       - (garage_data_dir | default('') | length > 0) or (garage_data_dirs | default([]) | length > 0)
     fail_msg: "Set either garage_data_dir or garage_data_dirs"
 
+- name: Validate garage_bootstrap_peers entry format
+  ansible.builtin.assert:
+    that:
+      - garage_bootstrap_peers | default([]) | reject('match', '^[0-9a-fA-F]{64}@\\S+:\\d+$') | list | length == 0
+    fail_msg: >-
+      garage_bootstrap_peers entries must use the format
+      '<node public key>@<host>:<port>' (e.g. '563e...d5f@10.0.0.1:3901').
+      Bare 'host:port' entries are silently ignored by Garage. Node public keys
+      are generated on the node's first start; see the README cluster example
+      for bootstrapping with 'garage node connect' instead.
+
 - name: Validate garage_admin_api_bind_addr includes port
   ansible.builtin.assert:
     that:

@@ -1,13 +1,15 @@
 ---
+# Flush pending restart/reload notifications first so a fresh install or an
+# upgrade results in a single service start instead of start-then-restart.
+- name: Flush handlers before service start
+  ansible.builtin.meta: flush_handlers
+
 - name: Start and enable Garage service
   ansible.builtin.systemd_service:
     name: garage
     state: started
     enabled: true
     daemon_reload: true
-
-- name: Flush handlers before health check
-  ansible.builtin.meta: flush_handlers
 
 - name: Derive admin API port
   ansible.builtin.set_fact:

@@ -5,6 +5,8 @@ _garage_arch_map:
   x86_64: x86_64-unknown-linux-musl
   aarch64: aarch64-unknown-linux-musl
   armv7l: armv6l-unknown-linux-musleabihf
+  armv6l: armv6l-unknown-linux-musleabihf
+  i686: i686-unknown-linux-musl
   i386: i686-unknown-linux-musl
 
 _garage_known_checksums:

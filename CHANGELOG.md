@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `garage_download_url` to install from a custom or mirror URL, and
+  `garage_download_local` to download via the controller and transfer over SSH
+  (useful for air-gapped networks).
+- SHA256 checksums for Garage v2.3.0.
+- Validation of `garage_bootstrap_peers` entry format
+  (`<node public key>@<host>:<port>`); bare `host:port` entries are silently
+  ignored by Garage and now fail fast with guidance.
+- Support for `i686` and `armv6l` values of `ansible_architecture`.
+
+### Changed
+
+- Default `garage_version` bumped from v2.0.0 to v2.3.0 (the default
+  `GARAGE_LOG_TO_JOURNALD=1` only takes effect on official builds >= v2.2.0).
+- Install and upgrade now share a single download task file; upgrades honor
+  `garage_download_url` and `garage_download_local` (previously hardcoded to
+  the official release URL).
+- Unsupported architectures now fail with a clear message instead of silently
+  downloading the x86_64 binary (set `garage_download_url` for custom builds).
+- Handlers are flushed before the service start task, so fresh installs and
+  upgrades result in a single service start instead of start-then-restart.
+- Cluster molecule scenario bootstraps the mesh via `garage node connect` and
+  verifies three healthy cluster members (previously nodes never joined).
+- Removed dead `provisioner.lint` keys from molecule configs (ignored since
+  Molecule v6).
+
+### Fixed
+
+- Upgrade flow ignored the custom download options, breaking custom-URL and
+  air-gapped upgrade paths.
+- Misleading "major version upgrade detected" error when the installed binary's
+  version output could not be parsed; the role now fails with a clear parse
+  error instead.
+- README cluster example used bare `host:port` bootstrap peers, which Garage
+  silently ignores — rewritten to the two-phase `node connect` pattern.
+- README claimed `/health` returns 502 on fresh installs; actual behavior is
+  200 on v2.0 and 503 on >= v2.2 until a layout is configured.
+- `meta/argument_specs.yml` was missing `garage_download_url` and
+  `garage_download_local`.
+
 ## [1.1.0] - 2026-03-02
 
 ### Added

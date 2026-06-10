@@ -12,7 +12,6 @@ platforms:
 
 provisioner:
   name: ansible
-  lint: ansible-lint
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/.."
 
