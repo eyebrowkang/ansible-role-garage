@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-10
+
 ### Added
 
 - `garage_download_url` to install from a custom or mirror URL, and
@@ -74,5 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-disk data directory support with ReadWritePaths wiring.
 - Optional admin API health check after service start (enabled by default).
 
+[1.2.0]: https://github.com/eyebrowkang/ansible-role-garage/releases/tag/v1.2.0
 [1.1.0]: https://github.com/eyebrowkang/ansible-role-garage/releases/tag/v1.1.0
 [1.0.0]: https://github.com/eyebrowkang/ansible-role-garage/releases/tag/v1.0.0
