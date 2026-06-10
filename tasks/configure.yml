@@ -7,7 +7,7 @@
     group: "{{ garage_group }}"
     mode: "0640"
   notify: Restart garage
-  no_log: true
+  no_log: "{{ garage_no_log }}"
 
 - name: Deploy environment file
   ansible.builtin.copy:
@@ -22,7 +22,7 @@
     mode: "0640"
   when: garage_env_variables | default({}, true) | length > 0
   notify: Restart garage
-  no_log: true
+  no_log: "{{ garage_no_log }}"
 
 - name: Remove environment file when no variables are set
   ansible.builtin.file:

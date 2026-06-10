@@ -22,3 +22,15 @@
 
 - name: Service
   ansible.builtin.include_tasks: service.yml
+
+- name: Cluster connect
+  ansible.builtin.include_tasks: cluster.yml
+  when: garage_cluster_connect | bool
+
+- name: Layout init
+  ansible.builtin.include_tasks: layout.yml
+  when: garage_layout_init | bool
+
+- name: Health check
+  ansible.builtin.include_tasks: healthcheck.yml
+  when: garage_healthcheck_enabled | bool

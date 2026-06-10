@@ -40,6 +40,27 @@
           Expected 3 healthy nodes in 'garage status' output, got:
           {{ garage_status.stdout }}
 
+    - name: Read cluster layout
+      ansible.builtin.command:
+        cmd: /usr/local/bin/garage --config /etc/garage/garage.toml layout show
+      register: garage_layout
+      changed_when: false
+
+    - name: Assert layout version 1 with all three nodes assigned
+      ansible.builtin.assert:
+        that:
+          - "'Current cluster layout version: 1' in garage_layout.stdout"
+          - garage_layout.stdout_lines | select('match', '^[0-9a-f]{16}\\s') | list | length == 3
+        fail_msg: >-
+          Expected layout version 1 with 3 assigned nodes, got:
+          {{ garage_layout.stdout }}
+
+    - name: Check health endpoint reports healthy cluster
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:3903/health"
+        method: GET
+        status_code: 200
+
     - name: Verify replication_factor in config
       ansible.builtin.command:
         cmd: grep -c "replication_factor = 3" /etc/garage/garage.toml

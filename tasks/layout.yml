@@ -1,0 +1,114 @@
+---
+# Initializes the cluster layout ON FIRST INSTALL ONLY (layout version
+# 0 -> 1). A cluster whose layout version is already >= 1 is never touched:
+# capacity changes, node additions/removals and rebalancing are operator
+# actions outside the scope of this role.
+#
+# Note on ordering: 'garage layout assign' only accepts node IDs the cluster
+# already knows, so this runs AFTER the connect step (verified empirically:
+# assigning an unknown ID fails with "Error: 0 nodes match").
+
+- name: Resolve cluster hosts
+  ansible.builtin.set_fact:
+    _garage_cluster_hosts: >-
+      {{ garage_cluster_hosts if garage_cluster_hosts | length > 0 else ansible_play_hosts }}
+  when: _garage_cluster_hosts is not defined
+
+- name: Validate layout parameters
+  ansible.builtin.assert:
+    that:
+      - garage_layout_zone | length > 0
+      - (garage_layout_capacity | length > 0) != (garage_layout_gateway | bool)
+    fail_msg: >-
+      garage_layout_init requires garage_layout_zone and exactly one of
+      garage_layout_capacity or garage_layout_gateway=true (per node).
+
+- name: Get node identifier
+  ansible.builtin.command:
+    cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml node id -q"
+  register: _garage_node_id_output
+  changed_when: false
+  check_mode: false
+  when: _garage_node_full_id is not defined
+
+- name: Set node identifier fact
+  ansible.builtin.set_fact:
+    _garage_node_full_id: "{{ _garage_node_id_output.stdout | trim }}"
+  when: _garage_node_full_id is not defined
+
+- name: Read current cluster layout
+  ansible.builtin.command:
+    cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml layout show"
+  register: _garage_layout_show
+  changed_when: false
+  check_mode: false
+  delegate_to: "{{ _garage_cluster_hosts | first }}"
+  run_once: true
+
+- name: Parse current layout version
+  ansible.builtin.set_fact:
+    _garage_layout_version: >-
+      {{ _garage_layout_show.stdout
+         | regex_search('Current cluster layout version: (\d+)', '\1') | first }}
+  run_once: true
+
+- name: Skip layout init (cluster already has a layout)
+  ansible.builtin.debug:
+    msg: >-
+      Cluster layout version {{ _garage_layout_version }} is already applied —
+      the role only initializes the first layout and leaves any existing
+      layout unmanaged.
+  run_once: true
+  when: _garage_layout_version | int > 0
+
+- name: Initialize cluster layout (first install)
+  when: _garage_layout_version | int == 0
+  block:
+    - name: Verify all cluster nodes are connected
+      ansible.builtin.command:
+        cmd: "{{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml status"
+      register: _garage_layout_status
+      changed_when: false
+      check_mode: false
+      delegate_to: "{{ _garage_cluster_hosts | first }}"
+      run_once: true
+
+    - name: Assert every node is visible to the coordinator
+      ansible.builtin.assert:
+        that:
+          - hostvars[item]._garage_node_full_id[0:16] in _garage_layout_status.stdout
+        fail_msg: >-
+          Node {{ item }} is not visible in 'garage status' on
+          {{ _garage_cluster_hosts | first }}. Enable garage_cluster_connect
+          (or connect the nodes manually) before garage_layout_init.
+      loop: "{{ _garage_cluster_hosts }}"
+      run_once: true
+
+    - name: Assign layout role to each node
+      ansible.builtin.command:
+        cmd: >-
+          {{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml
+          layout assign
+          -z {{ hostvars[item].garage_layout_zone | default(garage_layout_zone) }}
+          {% if hostvars[item].garage_layout_gateway | default(garage_layout_gateway) %}
+          -g
+          {% else %}
+          -c {{ hostvars[item].garage_layout_capacity | default(garage_layout_capacity) }}
+          {% endif %}
+          {% for tag in hostvars[item].garage_layout_tags | default(garage_layout_tags) %}
+          -t {{ tag }}
+          {% endfor %}
+          {{ hostvars[item]._garage_node_full_id | regex_replace('@.*$', '') }}
+      loop: "{{ _garage_cluster_hosts }}"
+      delegate_to: "{{ _garage_cluster_hosts | first }}"
+      run_once: true
+      changed_when: true
+
+    - name: Apply cluster layout version 1
+      ansible.builtin.command:
+        cmd: >-
+          {{ garage_binary_path }} --config {{ garage_config_dir }}/garage.toml
+          layout apply --version 1
+      delegate_to: "{{ _garage_cluster_hosts | first }}"
+      run_once: true
+      changed_when: true

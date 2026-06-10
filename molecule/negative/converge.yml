@@ -1,0 +1,149 @@
+---
+# Negative-path tests: every block runs the role with invalid input and
+# asserts it fails fast with the intended message, BEFORE mutating the
+# system. The one real install in the middle provides the running node
+# for the downgrade / major-upgrade rejection tests.
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    valid_secret: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+  tasks:
+    - name: Missing rpc_secret is rejected
+      block:
+        - name: Run role without rpc_secret
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have failed without rpc_secret"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'garage_rpc_secret' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
+
+    - name: Malformed rpc_secret is rejected
+      block:
+        - name: Run role with short rpc_secret
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+          vars:
+            garage_rpc_secret: "deadbeef"
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have failed with malformed rpc_secret"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'64 hex characters' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
+
+    - name: Bare host:port bootstrap peer is rejected
+      block:
+        - name: Run role with invalid bootstrap_peers
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+          vars:
+            garage_rpc_secret: "{{ valid_secret }}"
+            garage_bootstrap_peers:
+              - "10.0.0.1:3901"
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have failed with bare host:port peer"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'node public key' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
+
+    - name: Mismatched s3_web options are rejected
+      block:
+        - name: Run role with only s3_web bind_addr
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+          vars:
+            garage_rpc_secret: "{{ valid_secret }}"
+            garage_s3_web_bind_addr: "[::]:3902"
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have failed with mismatched s3_web options"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'garage_s3_web_root_domain' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
+
+    - name: Data dir entry without path is rejected
+      block:
+        - name: Run role with malformed data_dirs entry
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+          vars:
+            garage_rpc_secret: "{{ valid_secret }}"
+            garage_data_dirs:
+              - capacity: "1T"
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have failed with pathless data_dirs entry"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'path' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
+
+    - name: Real install (v2.3.0) for version-gate tests
+      ansible.builtin.include_role:
+        name: eyebrowkang.garage
+      vars:
+        garage_rpc_secret: "{{ valid_secret }}"
+
+    - name: Downgrade attempt is rejected
+      block:
+        - name: Run role with older target version
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+          vars:
+            garage_rpc_secret: "{{ valid_secret }}"
+            garage_upgrade: true
+            garage_version: "v2.2.0"
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have refused the downgrade"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'Downgrade not supported' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
+
+    - name: Major version upgrade attempt is rejected
+      block:
+        - name: Run role with next-major target version
+          ansible.builtin.include_role:
+            name: eyebrowkang.garage
+          vars:
+            garage_rpc_secret: "{{ valid_secret }}"
+            garage_upgrade: true
+            garage_version: "v3.0.0"
+
+        - name: Unreachable
+          ansible.builtin.fail:
+            msg: "role should have refused the major upgrade"
+      rescue:
+        - name: Assert failure reason
+          ansible.builtin.assert:
+            that:
+              - "'Major version upgrade detected' in (ansible_failed_result.msg | default(''))"
+            fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
