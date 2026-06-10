@@ -1,0 +1,50 @@
+---
+name: Update Checksums
+
+on:
+  schedule:
+    # Monday 06:23 UTC — checks for new Garage releases weekly.
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Garage version (e.g. v2.4.0); empty = latest release"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-checksums:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run checksum updater
+        id: update
+        run: |
+          ./scripts/update-checksums.sh ${{ github.event.inputs.version }}
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "version=$(cat /tmp/garage_new_version)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open pull request
+        if: steps.update.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: auto/garage-${{ steps.update.outputs.version }}
+          title: "feat: add Garage ${{ steps.update.outputs.version }} checksums"
+          commit-message: "feat: add Garage ${{ steps.update.outputs.version }} checksums"
+          body: >-
+            Automated update: SHA256 checksums for Garage
+            ${{ steps.update.outputs.version }} (all four architectures),
+            fetched from the official release endpoint and verified by
+            downloading each binary. If the default `garage_version` shares
+            the same major version, it is bumped as well — the CI molecule
+            matrix then installs the new version as a real regression test.
+          delete-branch: true

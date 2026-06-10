@@ -1,0 +1,47 @@
+---
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  # Manual fallback to (re-)import the role into Galaxy.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  galaxy-import:
+    # Releases created with GITHUB_TOKEN do not trigger `on: release`
+    # workflows, so the Galaxy import runs here, gated on release_created.
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install ansible-core
+        run: pip install ansible-core
+
+      - name: Import role into Ansible Galaxy
+        run: >-
+          ansible-galaxy role import
+          --api-key "${{ secrets.GALAXY_API_KEY }}"
+          ${{ github.repository_owner }}
+          ${{ github.event.repository.name }}

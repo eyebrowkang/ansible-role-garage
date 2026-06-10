@@ -21,6 +21,9 @@ rules:
   octal-values:
     forbid-implicit-octal: true # yamllint defaults to false
     forbid-explicit-octal: true # yamllint defaults to false
+  # GitHub workflow files use `on:` as a key
+  truthy:
+    check-keys: false
   # quoted-strings:
   #   quote-type: double
   #   required: only-when-needed

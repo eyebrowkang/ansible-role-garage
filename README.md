@@ -1,5 +1,9 @@
 # ansible-role-garage
 
+[![CI](https://github.com/eyebrowkang/ansible-role-garage/actions/workflows/ci.yml/badge.svg)](https://github.com/eyebrowkang/ansible-role-garage/actions/workflows/ci.yml)
+[![Release](https://github.com/eyebrowkang/ansible-role-garage/actions/workflows/release.yml/badge.svg)](https://github.com/eyebrowkang/ansible-role-garage/actions/workflows/release.yml)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-eyebrowkang.garage-blue)](https://galaxy.ansible.com/ui/standalone/roles/eyebrowkang/garage/)
+
 An Ansible role to install, configure, and upgrade Garage Object Storage as a systemd service on Linux systems.
 
 ## Description
@@ -232,6 +236,12 @@ Generate secrets:
 ```bash
 openssl rand -hex 32
 ```
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development environment, test
+matrix (molecule + vagrant locally, containers in CI), conventional-commit PR
+titles, and the release-please based release flow.
 
 ## License
 
