@@ -23,3 +23,8 @@ _garage_known_checksums:
     aarch64-unknown-linux-musl: "3922bd3524e5267587a27fec91e4d8447353113ea3a55e2d1786a53d7529d1da"
     armv6l-unknown-linux-musleabihf: "12210b773e0dff921c89b8894c0dc66e2cbc6cd6c2574f409f8405de2f7945b5"
     i686-unknown-linux-musl: "ee221f20d5685631489711aa2bf5ee4af321d3eab4a5cc6e558136bbea7f773b"
+  v2.3.0:
+    x86_64-unknown-linux-musl: "f98d317942bb341151a2775162016bb50cf86b865d0108de03eb5db16e2120cd"
+    aarch64-unknown-linux-musl: "8ced2ad3040262571de08aa600959aa51f97576d55da7946fcde6f66140705e2"
+    armv6l-unknown-linux-musleabihf: "c6f8532dbdeb40549905a2b65158827c0b0a692bdb74b1e8fe1c3b4c558771e3"
+    i686-unknown-linux-musl: "fbcc35b5b87bdceb227af610f09994a5b3aef7fb18d94453720d6e4478b0b024"
