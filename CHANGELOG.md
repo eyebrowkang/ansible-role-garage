@@ -1,12 +1,5 @@
 # Changelog
 
-## [1.3.0](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.2.0...v1.3.0) (2026-06-10)
-
-
-### Features
-
-* cluster connect and first-layout initialization ([#9](https://github.com/eyebrowkang/ansible-role-garage/issues/9)) ([e330045](https://github.com/eyebrowkang/ansible-role-garage/commit/e3300452b6ffd97351eba58739529bee445b1fc3))
-
 ## [1.2.0] - 2026-06-10
 
 ### Added
