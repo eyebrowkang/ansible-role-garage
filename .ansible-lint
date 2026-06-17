@@ -2,8 +2,11 @@
 profile: production
 
 exclude_paths:
-  - .git/
   - .ansible/
+  - .venv/
+  - .copier-answers.yml
 
+# Several task names interpolate vars (e.g. the target Garage version); the
+# production profile's name[template] rule would otherwise flag them.
 skip_list:
   - name[template]

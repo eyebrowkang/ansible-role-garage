@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    garage_rpc_secret: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+  roles:
+    - role: eyebrowkang.garage
