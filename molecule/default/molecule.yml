@@ -1,19 +1,51 @@
 ---
+# Docker scenario — fast; runs on GitHub public runners (distro matrix via MOLECULE_DISTRO).
+# Uses molecule's built-in "default" (delegated) driver + our own create/destroy
+# playbooks driving community.docker. This avoids molecule-plugins[docker], whose
+# create playbook is incompatible with ansible-core 2.21 (data-tagging changes).
+dependency:
+  name: galaxy   # auto-installs molecule/default/collections.yml (scenario-absolute path)
+
 driver:
-  name: vagrant
-  provider:
-    name: libvirt
+  name: default
+  options:
+    managed: true
 
 platforms:
-  - name: garage-debian12
-    box: generic/debian12
-    cpus: 1
-    memory: 1024
+  # Distro selected by MOLECULE_DISTRO (CI matrix: debian12, ubuntu2404, rockylinux9).
+  # systemd-enabled images so the garage service unit can be tested in-container.
+  - name: garage-${MOLECULE_DISTRO:-debian12}
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-debian12}-ansible:latest"
+    systemd: true
+    groups:
+      - garage_servers
 
 provisioner:
   name: ansible
-  env:
-    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/.."
+  inventory:
+    group_vars:
+      all:
+        # The docker connection already runs as root, so become is a redundant
+        # sudo wrapper here — and sudo's PAM stack breaks intermittently in EL9
+        # containers on CI runners ("PAM account management error"). Connection
+        # variables override the play-level `become: true` keyword.
+        ansible_become: false
+  playbooks:
+    create: create.yml
+    destroy: destroy.yml
+    converge: converge.yml
+    verify: verify.yml
 
 verifier:
   name: ansible
+
+scenario:
+  name: default
+  test_sequence:
+    - dependency
+    - destroy
+    - create
+    - converge
+    - idempotence
+    - verify
+    - destroy

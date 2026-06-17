@@ -1,0 +1,6 @@
+---
+collections:
+  # community.docker provides docker_container (create.yml) and the docker connection plugin.
+  # Pinned to the tested major so an upstream major bump can't silently break create.yml.
+  - name: community.docker
+    version: ">=5.0.0,<6.0.0"

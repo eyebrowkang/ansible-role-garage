@@ -1,6 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+*.retry
+.ansible/
 .idea/
 .vscode/
-
-*.retry
-
-.ansible/

@@ -1,49 +1,21 @@
 ---
 name: CI
-
-on:
-  pull_request:
-  push:
-    branches:
-      - main
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-defaults:
-  run:
-    # Checked out under the galaxy role name so molecule's
-    # ANSIBLE_ROLES_PATH=.. resolves eyebrowkang.garage correctly.
-    working-directory: eyebrowkang.garage
+on: [push, pull_request]
 
 jobs:
   lint:
-    name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          path: eyebrowkang.garage
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - run: uv run ansible-galaxy collection install -r molecule/default/collections.yml
+      - run: uv run yamllint .
+      - run: uv run ansible-lint
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: pip
-          cache-dependency-path: eyebrowkang.garage/requirements-ci.txt
-
-      - name: Install tooling
-        run: pip install -r requirements-ci.txt
-
-      - name: yamllint
-        run: yamllint -c .yamllint.yml --strict .
-
-      - name: ansible-lint
-        run: ansible-lint
-
-  molecule:
-    name: molecule
+  molecule-docker:
     runs-on: ubuntu-latest
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -53,21 +25,12 @@ jobs:
           - rockylinux9
     env:
       MOLECULE_DISTRO: ${{ matrix.distro }}
-      ANSIBLE_FORCE_COLOR: "1"
-      PY_COLORS: "1"
     steps:
-      - uses: actions/checkout@v6
-        with:
-          path: eyebrowkang.garage
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: pip
-          cache-dependency-path: eyebrowkang.garage/requirements-ci.txt
-
-      - name: Install tooling
-        run: pip install -r requirements-ci.txt
-
-      - name: Run molecule (ci scenario)
-        run: molecule test -s ci
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - name: Molecule (docker)
+        run: uv run molecule test
+      - name: Destroy
+        if: always()
+        run: uv run molecule destroy

@@ -1,0 +1,48 @@
+---
+# Vagrant + libvirt scenario — VM-only needs (kernel modules, reboot, real networking).
+# Runs locally (needs `uv sync --group vagrant` + libvirt/KVM); GitHub has no KVM,
+# so the vagrant scenarios are local-only.
+#
+# molecule-plugins#301: run this via `make test-vm`, which exports ANSIBLE_LIBRARY /
+# ANSIBLE_FILTER_PLUGINS so Ansible can find the vagrant module/filter. A bare
+# `molecule test -s vagrant` fails without those.
+dependency:
+  name: galaxy   # auto-installs molecule/vagrant/collections.yml (scenario-absolute path)
+
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+
+platforms:
+  - name: garage-vm
+    box: generic/debian12
+    memory: 1024
+    cpus: 1
+    groups:
+      - garage_servers
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+  inventory:
+    host_vars:
+      garage-vm:
+        ansible_user: vagrant
+
+verifier:
+  name: ansible
+
+scenario:
+  name: vagrant
+  test_sequence:
+    - dependency
+    - destroy
+    - syntax
+    - create
+    - converge
+    - idempotence
+    - verify
+    - destroy

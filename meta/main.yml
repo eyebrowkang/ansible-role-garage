@@ -2,10 +2,10 @@
 galaxy_info:
   role_name: garage
   namespace: eyebrowkang
-  author: eyebrowkang
-  description: Install and configure Garage Object Storage as a systemd service on Linux systems
+  author: "eyebrowkang"
+  description: "Install and configure Garage Object Storage as a systemd service on Linux systems"
   license: MIT
-  min_ansible_version: "2.16"
+  min_ansible_version: "2.16.0"
   platforms:
     - name: ArchLinux
     - name: Debian
@@ -30,3 +30,7 @@ galaxy_info:
     - s3
     - objectstore
     - system
+
+dependencies: []
+
+collections: []
