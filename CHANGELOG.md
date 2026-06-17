@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.3.0...v1.3.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* destroy recorded molecule instances ([#14](https://github.com/eyebrowkang/ansible-role-garage/issues/14)) ([0afc113](https://github.com/eyebrowkang/ansible-role-garage/commit/0afc113dde77b453e56aa594cbf9a403cef00e75))
+
 ## [1.3.0](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.2.0...v1.3.0) (2026-06-10)
 
 
