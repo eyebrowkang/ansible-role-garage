@@ -1,4 +1,9 @@
 ---
+# Verify the role's effects from the OUTSIDE — assert the target's REAL state (files on
+# disk, `systemctl is-active`, a listening port), not a module's own "changed"/"ok" report.
+# A verify that re-runs the role's modules and trusts their return value is circular; read
+# the actual state with stat/slurp/command/service_facts and assert on that.
+# See docs/molecule-testing.md for the full pattern (and testinfra as an alternative).
 - name: Verify
   hosts: all
   become: true

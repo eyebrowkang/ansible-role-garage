@@ -5,7 +5,7 @@ galaxy_info:
   author: "eyebrowkang"
   description: "Install and configure Garage Object Storage as a systemd service on Linux systems"
   license: MIT
-  min_ansible_version: "2.16.0"
+  min_ansible_version: "2.18.0"
   platforms:
     - name: ArchLinux
     - name: Debian

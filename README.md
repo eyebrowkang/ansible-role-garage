@@ -23,7 +23,7 @@ This role automates the deployment of [Garage](https://garagehq.deuxfleurs.fr/),
 
 ## Requirements
 
-- Ansible >= 2.16
+- Ansible >= 2.18
 - Target system with systemd support
 - Internet access for downloading Garage binary (on target or controller when using `garage_download_local`)
 

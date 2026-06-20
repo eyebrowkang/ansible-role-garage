@@ -1,6 +1,6 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY.
 # Run `copier update --trust` from this directory to pull template improvements.
-_commit: v1.2.0
+_commit: v1.3.1
 _src_path: https://git.utlas.de/eyebrowkang/ansible-development.git
 author: eyebrowkang
 ci_platform: github
@@ -10,7 +10,7 @@ include_docker: true
 include_vagrant: true
 kind: role
 license: MIT
-min_ansible_version: 2.16.0
+min_ansible_version: 2.18.0
 namespace: eyebrowkang
 needs_systemd: true
 release_automation: true
