@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.2](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.3.1...v1.3.2) (2026-06-21)
+
+
+### Bug Fixes
+
+* **validate:** gate template-specific checks on the bundled config template ([b89f47c](https://github.com/eyebrowkang/ansible-role-garage/commit/b89f47c227f0add80f7dc8720e9d6632aef0a304))
+
+
+### Documentation
+
+* **download:** note bare retries is intentional (ansible-core &gt;= 2.16) ([f45df0f](https://github.com/eyebrowkang/ansible-role-garage/commit/f45df0f06e4ff3ed5bac0ec628fa70d8b8bc4603))
+* split examples into EXAMPLES.md and add a Chinese README ([4b3e1a1](https://github.com/eyebrowkang/ansible-role-garage/commit/4b3e1a1ffd5aa019d627af9cc2791d1db25d6548))
+
 ## [1.3.1](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.3.0...v1.3.1) (2026-06-17)
 
 
