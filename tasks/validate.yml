@@ -1,21 +1,19 @@
 ---
+# Validation follows "validate what you render":
+#   * Intrinsic checks below run ALWAYS — they guard the role's own machinery
+#     (download, dir creation, service wait, upgrade flow), which manages the
+#     host regardless of garage_config_template.
+#   * Template-specific checks (the block at the bottom) run only when the
+#     bundled garage.toml template is in use; a custom template owns validation
+#     of its own variables. See _garage_builtin_config in vars/main.yml.
+
+# --- Intrinsic (always) ---
+
 - name: Validate garage_version starts with v
   ansible.builtin.assert:
     that:
       - garage_version is match('^v')
     fail_msg: "garage_version must start with 'v' (got '{{ garage_version }}')"
-
-- name: Validate garage_rpc_secret or garage_rpc_secret_file is set
-  ansible.builtin.assert:
-    that:
-      - (garage_rpc_secret | default('') | length > 0) or (garage_rpc_secret_file | default('') | length > 0)
-    fail_msg: "garage_rpc_secret or garage_rpc_secret_file must be defined and non-empty"
-
-- name: Validate garage_replication_factor is a positive integer
-  ansible.builtin.assert:
-    that:
-      - garage_replication_factor | int > 0
-    fail_msg: "garage_replication_factor must be a positive integer (got '{{ garage_replication_factor }}')"
 
 - name: Validate garage_data_dir/garage_data_dirs usage
   ansible.builtin.assert:
@@ -23,39 +21,11 @@
       - (garage_data_dir | default('') | length > 0) or (garage_data_dirs | default([]) | length > 0)
     fail_msg: "Set either garage_data_dir or garage_data_dirs"
 
-- name: Validate garage_rpc_secret format
-  ansible.builtin.assert:
-    that:
-      - garage_rpc_secret is match('^[0-9a-fA-F]{64}$')
-    fail_msg: >-
-      garage_rpc_secret must be a 32-byte hex string (64 hex characters).
-      Generate one with: openssl rand -hex 32
-  when: garage_rpc_secret | default('') | length > 0
-
-- name: Validate s3 web options are set together
-  ansible.builtin.assert:
-    that:
-      - (garage_s3_web_bind_addr | default('') | length > 0) == (garage_s3_web_root_domain | default('') | length > 0)
-    fail_msg: >-
-      garage_s3_web_bind_addr and garage_s3_web_root_domain must be set
-      together — the [s3_web] section is only rendered when both are present.
-
 - name: Validate garage_data_dirs entry shape
   ansible.builtin.assert:
     that:
       - garage_data_dirs | default([]) | select('mapping') | selectattr('path', 'undefined') | list | length == 0
     fail_msg: "Every mapping entry in garage_data_dirs must define 'path'"
-
-- name: Validate garage_bootstrap_peers entry format
-  ansible.builtin.assert:
-    that:
-      - garage_bootstrap_peers | default([]) | reject('match', '^[0-9a-fA-F]{64}@\\S+:\\d+$') | list | length == 0
-    fail_msg: >-
-      garage_bootstrap_peers entries must use the format
-      '<node public key>@<host>:<port>' (e.g. '563e...d5f@10.0.0.1:3901').
-      Bare 'host:port' entries are silently ignored by Garage. Node public keys
-      are generated on the node's first start; see the README cluster example
-      for bootstrapping with 'garage node connect' instead.
 
 - name: Validate garage_admin_api_bind_addr includes port
   ansible.builtin.assert:
@@ -69,3 +39,48 @@
       - garage_upgrade | type_debug in ['bool', 'AnsibleUnsafeText', 'str']
       - garage_upgrade | string | lower in ['true', 'false']
     fail_msg: "garage_upgrade must be a boolean (got '{{ garage_upgrade }}')"
+
+# --- Template-specific (only when rendering the bundled garage.toml) ---
+
+- name: Validate bundled-template configuration
+  when: _garage_builtin_config | bool
+  block:
+    - name: Validate garage_rpc_secret or garage_rpc_secret_file is set
+      ansible.builtin.assert:
+        that:
+          - (garage_rpc_secret | default('') | length > 0) or (garage_rpc_secret_file | default('') | length > 0)
+        fail_msg: "garage_rpc_secret or garage_rpc_secret_file must be defined and non-empty"
+
+    - name: Validate garage_replication_factor is a positive integer
+      ansible.builtin.assert:
+        that:
+          - garage_replication_factor | int > 0
+        fail_msg: "garage_replication_factor must be a positive integer (got '{{ garage_replication_factor }}')"
+
+    - name: Validate garage_rpc_secret format
+      ansible.builtin.assert:
+        that:
+          - garage_rpc_secret is match('^[0-9a-fA-F]{64}$')
+        fail_msg: >-
+          garage_rpc_secret must be a 32-byte hex string (64 hex characters).
+          Generate one with: openssl rand -hex 32
+      when: garage_rpc_secret | default('') | length > 0
+
+    - name: Validate s3 web options are set together
+      ansible.builtin.assert:
+        that:
+          - (garage_s3_web_bind_addr | default('') | length > 0) == (garage_s3_web_root_domain | default('') | length > 0)
+        fail_msg: >-
+          garage_s3_web_bind_addr and garage_s3_web_root_domain must be set
+          together — the [s3_web] section is only rendered when both are present.
+
+    - name: Validate garage_bootstrap_peers entry format
+      ansible.builtin.assert:
+        that:
+          - garage_bootstrap_peers | default([]) | reject('match', '^[0-9a-fA-F]{64}@\\S+:\\d+$') | list | length == 0
+        fail_msg: >-
+          garage_bootstrap_peers entries must use the format
+          '<node public key>@<host>:<port>' (e.g. '563e...d5f@10.0.0.1:3901').
+          Bare 'host:port' entries are silently ignored by Garage. Node public keys
+          are generated on the node's first start; see the README cluster example
+          for bootstrapping with 'garage node connect' instead.

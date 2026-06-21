@@ -212,7 +212,14 @@ argument_specs:
       garage_config_template:
         type: str
         default: "garage.toml.j2"
-        description: "Path to a custom TOML config template"
+        description: >-
+          Path to a custom TOML config template. When overridden, the role
+          renders your template instead of the bundled garage.toml and SKIPS
+          template-specific validation (replication_factor, rpc_secret,
+          s3_web pairing, bootstrap_peers) — you own validation of your
+          template's variables. Intrinsic checks (version, data dirs, admin
+          port, upgrade) still run, and the role still manages the user,
+          directories, env file, and systemd service.
 
       garage_no_log:
         type: bool

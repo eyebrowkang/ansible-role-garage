@@ -1,6 +1,14 @@
 ---
 garage_binary_path: /usr/local/bin/garage
 
+# True when the role renders its own bundled garage.toml template. When the
+# operator overrides garage_config_template, validate.yml skips the checks that
+# only the bundled template consumes ("validate what you render") — a custom
+# template owns validation of its own variables. Intrinsic checks (version, data
+# dirs, admin port, upgrade flow) still run, since the role's own machinery
+# (download/setup/service) consumes those regardless of the config template.
+_garage_builtin_config: "{{ garage_config_template == 'garage.toml.j2' }}"
+
 _garage_arch_map:
   x86_64: x86_64-unknown-linux-musl
   aarch64: aarch64-unknown-linux-musl
