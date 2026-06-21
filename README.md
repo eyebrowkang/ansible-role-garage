@@ -101,8 +101,8 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 
 ### Notes
 
-- `garage_rpc_secret` or `garage_rpc_secret_file` must be defined and non-empty or the role will fail validation.
-- `garage_config_template` can be overridden to use a fully custom config template.
+- `garage_rpc_secret` or `garage_rpc_secret_file` must be defined and non-empty or the role will fail validation (when using the bundled template — see below).
+- `garage_config_template` can be overridden to use a fully custom config template. When you do, the role **skips template-specific validation** (`replication_factor`, `rpc_secret`, `s3_web` pairing, `bootstrap_peers`) — those vars feed the bundled template only, so you own validation of whatever your template consumes. Intrinsic checks (`garage_version`, data dirs, `admin_api_bind_addr` port, `garage_upgrade`) still run, and the role still manages the user, directories, env file, and systemd service.
 - Raw custom options are not supported; use `garage_config_template` for custom config content.
 - Advanced configuration (discovery backends, performance tuning, extra APIs) should be done via a custom template.
 - The environment file is rendered only when `garage_env_variables` is non-empty; by default it includes `GARAGE_LOG_TO_JOURNALD=1` (set `{}` to disable).
