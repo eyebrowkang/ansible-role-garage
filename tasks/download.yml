@@ -52,6 +52,9 @@
     timeout: 120
   when: not (garage_download_local | bool)
   notify: Restart garage
+  # No until/register by design: since ansible-core 2.16 a bare retries implies
+  # `until: not failed`, so get_url retries on transient download failures. Role
+  # floor is 2.18 (meta/main.yml), safely above that threshold. Verified — OK.
   retries: 3
   delay: 10
 
@@ -75,6 +78,7 @@
         timeout: 120
       delegate_to: localhost
       become: false
+      # Bare retries is intentional — see the remote task above (ansible-core >= 2.16).
       retries: 3
       delay: 10
 
