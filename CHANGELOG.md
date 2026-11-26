@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.3.2...v1.4.0) (2026-11-26)
+
+
+### Features
+
+* support Garage v2.6.0 ([#21](https://github.com/eyebrowkang/ansible-role-garage/issues/21)) ([16e57b4](https://github.com/eyebrowkang/ansible-role-garage/commit/16e57b4aa3f6755b1c0e525b29ac560bd3f93e41))
+
 ## [1.3.2](https://github.com/eyebrowkang/ansible-role-garage/compare/v1.3.1...v1.3.2) (2026-06-21)
 
 
