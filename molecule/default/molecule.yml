@@ -19,22 +19,20 @@ platforms:
     systemd: true
     groups:
       - garage_servers
+      # inventory/group_vars/docker_instances.yml turns become off for this scenario only.
+      - docker_instances
 
 provisioner:
   name: ansible
-  inventory:
-    group_vars:
-      all:
-        # The docker connection already runs as root, so become is a redundant
-        # sudo wrapper here — and sudo's PAM stack breaks intermittently in EL9
-        # containers on CI runners ("PAM account management error"). Connection
-        # variables override the play-level `become: true` keyword.
-        ansible_become: false
   playbooks:
     create: create.yml
     destroy: destroy.yml
     converge: converge.yml
     verify: verify.yml
+  inventory:
+    # The test variables (inventory/group_vars/), shared with the other scenarios.
+    links:
+      group_vars: inventory/group_vars/
 
 verifier:
   name: ansible

@@ -24,13 +24,14 @@ platforms:
 
 provisioner:
   name: ansible
+  # The docker scenario's playbooks and test variables (the same linked inventory). The
+  # vagrant driver supplies ansible_user itself.
   playbooks:
-    converge: converge.yml
-    verify: verify.yml
+    converge: ../default/converge.yml
+    verify: ../default/verify.yml
   inventory:
-    host_vars:
-      garage-vm:
-        ansible_user: vagrant
+    links:
+      group_vars: ../default/inventory/group_vars/
 
 verifier:
   name: ansible
