@@ -55,7 +55,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 
 | Variable                        | Default                                                             | Description                                                                                 |
 | ------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `garage_version`                | `"v2.3.0"`                                                          | Garage version to install/upgrade to (must start with `v`)                                  |
+| `garage_version`                | `"v2.6.0"`                                                          | Garage version to install/upgrade to (must start with `v`)                                  |
 | `garage_user`                   | `"garage"`                                                          | System user to run Garage                                                                   |
 | `garage_group`                  | `"garage"`                                                          | System group for Garage                                                                     |
 | `garage_home`                   | `"/var/lib/garage"`                                                 | Home directory for the Garage user                                                          |

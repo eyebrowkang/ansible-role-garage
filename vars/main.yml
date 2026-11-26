@@ -38,3 +38,23 @@ _garage_known_checksums:
     aarch64-unknown-linux-musl: "8ced2ad3040262571de08aa600959aa51f97576d55da7946fcde6f66140705e2"
     armv6l-unknown-linux-musleabihf: "c6f8532dbdeb40549905a2b65158827c0b0a692bdb74b1e8fe1c3b4c558771e3"
     i686-unknown-linux-musl: "fbcc35b5b87bdceb227af610f09994a5b3aef7fb18d94453720d6e4478b0b024"
+  v2.4.0:
+    x86_64-unknown-linux-musl: "1a93848b61d3128a6f98aff301b7f23d66cdcc1dc9cf7aa0768e382901eebf37"
+    aarch64-unknown-linux-musl: "1d0e5fa62b12eb10fcc26f83c857d762a22ddb45bd436f96cba5d824e2275c24"
+    armv6l-unknown-linux-musleabihf: "a1eb73a863886f7e0192f40a3e90a62ac66687a4756f0323d2cce1e42eec57f0"
+    i686-unknown-linux-musl: "e58f4d08dc3679e868eefd5180c044ced5543bf902c92d82fa9e64d84fcc44fd"
+  v2.4.1:
+    x86_64-unknown-linux-musl: "ae49f8de4aaee6b5ca305f7cbdccc8cd8a29b2804aac074649f18bfb83d0a2b6"
+    aarch64-unknown-linux-musl: "004b6081c6e3cccbb80317c69e3c5749fbb3fc889e217cc9b89c215bf0dd7ded"
+    armv6l-unknown-linux-musleabihf: "eaa8c232c2db342589808f8106507b01f49eeb4c4ff2508257f9e2e77e7bf9db"
+    i686-unknown-linux-musl: "0569939d52c322385f71fc4d62bad68ceb9689e950a210eeef3625b724e655a8"
+  v2.5.0:
+    x86_64-unknown-linux-musl: "2ff667286217cd73ebcb1c03af993822365000441dfe31a80cb64c5189a9dea8"
+    aarch64-unknown-linux-musl: "69b6040cef428b993500c17dd0d0c1240acf2f3f667b9b05ceba4b9660db4e8c"
+    armv6l-unknown-linux-musleabihf: "2967ddf0924402558cbc1474832e4c6f1ca3b09c4458be918b1669fb4df362c3"
+    i686-unknown-linux-musl: "ef60457706cf6fcdeba77e566b7ed05d3d686f92bc36396b54098b1c8cd7fc5d"
+  v2.6.0:
+    x86_64-unknown-linux-musl: "c270bd65431ca32f0b0d5df23bab71e3b64a08517fdf9037968f146ed17c51c7"
+    aarch64-unknown-linux-musl: "529903efab83da4a0284e66891edcec6491af26e2dacca148f860245d39e7ff4"
+    armv6l-unknown-linux-musleabihf: "7c09d019ae1c6a30a4ebeeddeab538d68f136176d5bfe5b2f71acd9cc76855b2"
+    i686-unknown-linux-musl: "1b7d0d372eeeb8f9927d62ad46a0f99453f65002a975536b0037139c3b20f185"

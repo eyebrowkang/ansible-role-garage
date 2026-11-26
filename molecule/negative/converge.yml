@@ -102,7 +102,7 @@
               - "'path' in (ansible_failed_result.msg | default(''))"
             fail_msg: "Unexpected failure: {{ ansible_failed_result | default({}) }}"
 
-    - name: Real install (v2.3.0) for version-gate tests
+    - name: Real install (the role's default version) for version-gate tests
       ansible.builtin.include_role:
         name: eyebrowkang.garage
       vars:

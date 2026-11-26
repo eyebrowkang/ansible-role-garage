@@ -9,7 +9,7 @@ argument_specs:
     options:
       garage_version:
         type: str
-        default: "v2.3.0"
+        default: "v2.6.0"
         description: "Garage version to install/upgrade to (must start with 'v')"
 
       garage_user:

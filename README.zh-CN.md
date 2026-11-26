@@ -44,7 +44,7 @@
 | 变量                        | 默认值                | 说明                                              |
 | --------------------------- | --------------------- | ------------------------------------------------- |
 | `garage_rpc_secret`         | （必填）              | 节点间 RPC 通信密钥，`openssl rand -hex 32` 生成  |
-| `garage_version`            | `"v2.3.0"`            | 安装/升级的目标版本（必须以 `v` 开头）            |
+| `garage_version`            | `"v2.6.0"`            | 安装/升级的目标版本（必须以 `v` 开头）            |
 | `garage_replication_factor` | `1`                   | 副本数（单机 1；生产建议 3）                       |
 | `garage_data_dir`           | `"/var/lib/garage/data"` | 单数据盘路径                                   |
 | `garage_data_dirs`          | `[]`                  | 多数据盘（路径列表，或 `{path, capacity?, read_only?}`）|
@@ -101,7 +101,7 @@
   hosts: storage
   become: true
   vars:
-    garage_version: "v2.3.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_upgrade_precheck: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"

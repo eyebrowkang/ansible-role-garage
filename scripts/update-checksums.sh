@@ -15,6 +15,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VARS_FILE="${VARS_FILE:-$REPO_ROOT/vars/main.yml}"
 DEFAULTS_FILE="${DEFAULTS_FILE:-$REPO_ROOT/defaults/main.yml}"
 README_FILE="${README_FILE:-$REPO_ROOT/README.md}"
+README_ZH_FILE="${README_ZH_FILE:-$REPO_ROOT/README.zh-CN.md}"
+EXAMPLES_FILE="${EXAMPLES_FILE:-$REPO_ROOT/EXAMPLES.md}"
 ARGSPEC_FILE="${ARGSPEC_FILE:-$REPO_ROOT/meta/argument_specs.yml}"
 
 RELEASES_API="https://git.deuxfleurs.fr/api/v1/repos/Deuxfleurs/garage/releases"
@@ -76,7 +78,9 @@ if [[ "$new_major" == "$cur_major" && "$highest" == "$version" && "$version" != 
   sed -i "s/^garage_version: \"$current_default\"/garage_version: \"$version\"/" "$DEFAULTS_FILE"
   sed -i "s/default: \"$current_default\"/default: \"$version\"/" "$ARGSPEC_FILE"
   sed -i "s/\`\"$current_default\"\`/\`\"$version\"\`/" "$README_FILE"
-  sed -i "s/garage_version: \"$current_default\"/garage_version: \"$version\"/" "$README_FILE"
+  sed -i "s/\`\"$current_default\"\`/\`\"$version\"\`/" "$README_ZH_FILE"
+  sed -i "s/garage_version: \"$current_default\"/garage_version: \"$version\"/" \
+    "$README_FILE" "$README_ZH_FILE" "$EXAMPLES_FILE"
   echo "Bumped default garage_version: $current_default -> $version"
 else
   echo "Default garage_version ($current_default) left unchanged (new major or not newer)."

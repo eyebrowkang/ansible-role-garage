@@ -86,7 +86,7 @@ Notes:
   hosts: storage
   become: true
   vars:
-    garage_version: "v2.3.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_upgrade_precheck: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
@@ -106,7 +106,7 @@ taken down, and the port/health checks gate progression to the next node:
   become: true
   serial: 1
   vars:
-    garage_version: "v2.3.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_healthcheck_enabled: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"

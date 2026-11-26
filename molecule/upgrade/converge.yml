@@ -1,9 +1,9 @@
 ---
-- name: Upgrade Garage to v2.1.0
+- name: Upgrade Garage to v2.6.0 (across v2.5.0, the release with no way back)
   hosts: all
   become: true
   vars:
-    garage_version: "v2.1.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_rpc_secret: "5a3d9d5edb6d3b3f3e9e8ff1c27c6ed0c5a2f41b7d1f7c4f0b8b6d9f2a1c3e5b"
     # Layout was applied in prepare, so /health is meaningful here
