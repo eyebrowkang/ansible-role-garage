@@ -71,6 +71,7 @@ Notes:
     garage_admin_token: "{{ vault_garage_admin_token }}"
     garage_metrics_token: "{{ vault_garage_metrics_token }}"
     garage_s3_root_domain: ".s3.example.com"
+    garage_s3_public_endpoint: "https://s3.example.com"
     garage_s3_web_bind_addr: "[::]:3902"
     garage_s3_web_root_domain: ".web.example.com"
     garage_env_variables:

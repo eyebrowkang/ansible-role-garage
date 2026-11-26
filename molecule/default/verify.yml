@@ -49,3 +49,15 @@
         that:
           - config_header.stdout | int > 0
         fail_msg: "Config file does not contain 'Managed by Ansible' header"
+
+    # The test variable from the linked inventory (inventory/group_vars/).
+    - name: Read the rendered config
+      ansible.builtin.slurp:
+        src: /etc/garage/garage.toml
+      register: garage_config_blob
+
+    - name: Assert the S3 public endpoint is rendered
+      ansible.builtin.assert:
+        that:
+          - ('public_endpoint = "' ~ garage_s3_public_endpoint ~ '"') in (garage_config_blob.content | b64decode)
+        fail_msg: "public_endpoint missing from [s3_api] in /etc/garage/garage.toml"

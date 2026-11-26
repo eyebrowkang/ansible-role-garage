@@ -102,6 +102,13 @@ argument_specs:
         default: ""
         description: "Root domain for S3 bucket access (set to enable vhost-style)"
 
+      garage_s3_public_endpoint:
+        type: str
+        default: ""
+        description: >-
+          Publicly reachable S3 endpoint as a full http:// or https:// URL
+          (Garage >= v2.5.0; empty = not rendered)
+
       garage_s3_web_bind_addr:
         type: str
         default: ""
