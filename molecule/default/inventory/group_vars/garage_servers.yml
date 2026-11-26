@@ -1,0 +1,11 @@
+---
+# The test variables, shared by every scenario: each scenario's molecule.yml links this
+# directory (provisioner.inventory.links), so they live here once. With links molecule
+# ignores inline inventory vars in molecule.yml: put every test variable in these files
+# (per host: an inventory/host_vars/ directory, linked the same way).
+#
+# A fixed test-only secret (openssl rand -hex 32); never use it outside molecule.
+garage_rpc_secret: "c063b3791f83345b2d6e79e01aa089a5b7a5c1cf70242f9eacb5ff92f9190f06"
+# Rendered into [s3_api]; verify.yml reads it back, and the running service proves Garage
+# accepts it.
+garage_s3_public_endpoint: "http://s3.garage.test"

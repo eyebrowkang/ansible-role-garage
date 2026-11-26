@@ -14,7 +14,12 @@
           - garage_service.status.ActiveState == "active"
         fail_msg: "Garage service is not active (state: {{ garage_service.status.ActiveState }})"
 
-    - name: Check installed version is unchanged (v2.3.0)
+    # The real install in converge used the role's default garage_version.
+    - name: Load the role defaults
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Check installed version is unchanged (the role default)
       ansible.builtin.command:
         cmd: /usr/local/bin/garage --version
       register: garage_version_out
@@ -23,5 +28,5 @@
     - name: Assert no downgrade/upgrade happened
       ansible.builtin.assert:
         that:
-          - garage_version_out.stdout is search('2\\.3\\.0')
+          - garage_version_out.stdout is search('^garage ' ~ garage_version ~ ' ')
         fail_msg: "Version changed unexpectedly: {{ garage_version_out.stdout }}"

@@ -39,7 +39,7 @@ Optional pre-commit hooks: `uv sync && uvx pre-commit install` (config in
 | `vagrant`   | vagrant/libvirt | Fresh install + idempotence + verify                |
 | `multidisk` | vagrant/libvirt | `garage_data_dirs` multi-disk layout                |
 | `negative`  | vagrant/libvirt | Validation failure-path assertions (bad input)      |
-| `upgrade`   | vagrant/libvirt | v2.0.0 → v2.1.0 minor upgrade; S3 object survives    |
+| `upgrade`   | vagrant/libvirt | v2.3.0 → v2.6.0 minor upgrade; S3 object survives    |
 | `cluster`   | vagrant/libvirt | 3-node mesh via `garage node connect` + layout      |
 
 Only the docker `default` scenario runs in GitHub CI (no KVM on public

@@ -37,6 +37,9 @@ s3_region = "{{ garage_s3_region }}"
 {% if garage_s3_root_domain | default('') | length > 0 %}
 root_domain = "{{ garage_s3_root_domain }}"
 {% endif %}
+{% if garage_s3_public_endpoint | default('') | length > 0 %}
+public_endpoint = "{{ garage_s3_public_endpoint }}"
+{% endif %}
 
 {% set _s3_web_enabled = (garage_s3_web_bind_addr | default('') | length > 0) and (garage_s3_web_root_domain | default('') | length > 0) %}
 {% if _s3_web_enabled %}

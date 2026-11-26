@@ -74,6 +74,25 @@
           garage_s3_web_bind_addr and garage_s3_web_root_domain must be set
           together — the [s3_web] section is only rendered when both are present.
 
+    - name: Validate garage_s3_public_endpoint is a full URL
+      ansible.builtin.assert:
+        that:
+          - garage_s3_public_endpoint is match('^https?://[^\\s"]+$')
+        fail_msg: >-
+          garage_s3_public_endpoint must be a full http:// or https:// URL
+          (got '{{ garage_s3_public_endpoint }}').
+      when: garage_s3_public_endpoint | default('') | length > 0
+
+    - name: Validate garage_s3_public_endpoint has a Garage that knows it
+      ansible.builtin.assert:
+        that:
+          - garage_version is version('v2.5.0', '>=')
+        fail_msg: >-
+          garage_s3_public_endpoint needs garage_version v2.5.0 or later
+          (got '{{ garage_version }}'): older Garage releases silently ignore
+          [s3_api] public_endpoint.
+      when: garage_s3_public_endpoint | default('') | length > 0
+
     - name: Validate garage_bootstrap_peers entry format
       ansible.builtin.assert:
         that:

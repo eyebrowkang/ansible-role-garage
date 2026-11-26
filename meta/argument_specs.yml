@@ -9,7 +9,7 @@ argument_specs:
     options:
       garage_version:
         type: str
-        default: "v2.3.0"
+        default: "v2.6.0"
         description: "Garage version to install/upgrade to (must start with 'v')"
 
       garage_user:
@@ -101,6 +101,13 @@ argument_specs:
         type: str
         default: ""
         description: "Root domain for S3 bucket access (set to enable vhost-style)"
+
+      garage_s3_public_endpoint:
+        type: str
+        default: ""
+        description: >-
+          Publicly reachable S3 endpoint as a full http:// or https:// URL
+          (Garage >= v2.5.0; empty = not rendered)
 
       garage_s3_web_bind_addr:
         type: str

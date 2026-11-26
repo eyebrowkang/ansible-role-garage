@@ -6,7 +6,7 @@ help:
 	@echo "deps      - install Galaxy collections that ansible-lint needs"
 	@echo "test      - molecule test (docker scenario)"
 	@echo "converge  - molecule converge (docker)"
-	@echo "check     - molecule converge --check (dry-run; only if the role is check-mode safe)"
+	@echo "check     - molecule converge --check (dry-run, on converged instances; only if the role is check-mode safe)"
 	@echo "destroy   - molecule destroy (docker)"
 	@echo "test-vm    - molecule test (vagrant scenario; needs 'uv sync --group vagrant' + libvirt/KVM)"
 	@echo "destroy-vm - molecule destroy (vagrant scenario)"
@@ -32,7 +32,9 @@ converge:
 
 # Dry-run: everything after `--` is passed through to ansible-playbook, so this previews
 # changes via check mode. Only meaningful if the role is check-mode safe (every task
-# supports check mode / sets check_mode appropriately). See docs/molecule-testing.md.
+# supports check mode / sets check_mode appropriately). On converged instances only: the
+# scenario's create.yml and prepare.yml get --check too, and molecule would record them as
+# done. See docs/molecule-testing.md.
 check:
 	uv run molecule converge -- --check
 

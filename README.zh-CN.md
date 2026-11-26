@@ -44,11 +44,12 @@
 | 变量                        | 默认值                | 说明                                              |
 | --------------------------- | --------------------- | ------------------------------------------------- |
 | `garage_rpc_secret`         | （必填）              | 节点间 RPC 通信密钥，`openssl rand -hex 32` 生成  |
-| `garage_version`            | `"v2.3.0"`            | 安装/升级的目标版本（必须以 `v` 开头）            |
+| `garage_version`            | `"v2.6.0"`            | 安装/升级的目标版本（必须以 `v` 开头）            |
 | `garage_replication_factor` | `1`                   | 副本数（单机 1；生产建议 3）                       |
 | `garage_data_dir`           | `"/var/lib/garage/data"` | 单数据盘路径                                   |
 | `garage_data_dirs`          | `[]`                  | 多数据盘（路径列表，或 `{path, capacity?, read_only?}`）|
 | `garage_db_engine`          | `"lmdb"`              | 数据库引擎（`lmdb` 或 `sqlite`）                  |
+| `garage_s3_public_endpoint` | `""`                  | S3 对外访问地址，如 `"https://s3.example.com"`（需 Garage >= v2.5.0；留空不渲染）|
 | `garage_cluster_connect`    | `false`              | 服务启动后将 play 内主机互相 `garage node connect` |
 | `garage_layout_init`        | `false`              | 初始化首个集群布局（仅 0 → 1，不改动已有布局）    |
 | `garage_upgrade`            | `false`              | 开启升级模式（仅目标版本更高时升级，禁止降级）    |
@@ -101,7 +102,7 @@
   hosts: storage
   become: true
   vars:
-    garage_version: "v2.3.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_upgrade_precheck: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
@@ -116,6 +117,12 @@
 自带模板覆盖常见场景。如需更细的配置（发现后端、性能调优、额外 API 等），可用 `garage_config_template` 整体替换为你自己的模板。
 
 一旦覆盖，role 会**跳过模板专属校验**（`replication_factor`、`rpc_secret`、`s3_web` 配对、`bootstrap_peers`）——这些变量只服务于自带模板，你需自行校验模板用到的变量。内禀校验（`garage_version`、数据目录、`admin_api_bind_addr` 端口、`garage_upgrade`）仍会执行，用户、目录、环境变量文件与 systemd 服务也照常由 role 管理。
+
+## 新版本 Garage 的注意事项
+
+- `garage_s3_public_endpoint` 渲染为 `[s3_api] public_endpoint`，Garage 向客户端返回对象公开 URL 时使用它（上游自 v2.5.0 起建议配置）。必须是完整的 `http://` 或 `https://` URL，且要求 `garage_version` >= v2.5.0：更早的版本会静默忽略这个配置项，所以 role 会拒绝这种组合。
+- `GARAGE_LOG_FORMAT=json`（Garage >= v2.5.0）可以通过 `garage_env_variables` 设置，但只要设置了 `GARAGE_LOG_TO_JOURNALD`（默认值就设置了）Garage 就会忽略它；要输出 JSON 日志需替换整个默认字典。
+- 自 v2.6.0 起，官方二进制在 admin API 监听地址上提供 Web 管理界面（`/ui/`，即 `garage_admin_api_bind_addr`，默认 `[::]:3903`）。页面本身无需认证即可加载，具体操作经由 admin API，需要 admin token。如果不希望被访问，请把 admin API 绑定到内网地址或用防火墙限制。
 
 ## 密钥管理（ansible-vault）
 

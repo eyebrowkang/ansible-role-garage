@@ -9,11 +9,11 @@
       register: garage_version
       changed_when: false
 
-    - name: Assert version is v2.1.0
+    - name: Assert version is v2.6.0
       ansible.builtin.assert:
         that:
-          - garage_version.stdout is search('2\\.1\\.0')
-        fail_msg: "Garage version is not v2.1.0 (got: {{ garage_version.stdout }})"
+          - garage_version.stdout is search('2\\.6\\.0')
+        fail_msg: "Garage version is not v2.6.0 (got: {{ garage_version.stdout }})"
 
     - name: Check Garage service is active
       ansible.builtin.systemd_service:
@@ -86,6 +86,20 @@
           - _test_parsed == "v2.2.0"
           - _test_major | int == 2
         fail_msg: "Version parsing failed for v2.2.0: parsed={{ _test_parsed }}, major={{ _test_major }}"
+
+    - name: Test version parsing with v2.6.0 output
+      vars:
+        _test_stdout: >-
+          garage v2.6.0 [features: bundled-libs, consul-discovery, fjall,
+          journald, k2v, kubernetes-discovery, lmdb, metrics, sqlite, syslog,
+          telemetry-otlp, webadmin]
+        _test_parsed: "v{{ _test_stdout | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+        _test_major: "{{ _test_parsed | regex_replace('^v(\\d+).*$', '\\1') | int }}"
+      ansible.builtin.assert:
+        that:
+          - _test_parsed == "v2.6.0"
+          - _test_major | int == 2
+        fail_msg: "Version parsing failed for v2.6.0: parsed={{ _test_parsed }}, major={{ _test_major }}"
 
     - name: Test major version comparison logic
       vars:

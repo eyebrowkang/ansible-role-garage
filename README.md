@@ -55,7 +55,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 
 | Variable                        | Default                                                             | Description                                                                                 |
 | ------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `garage_version`                | `"v2.3.0"`                                                          | Garage version to install/upgrade to (must start with `v`)                                  |
+| `garage_version`                | `"v2.6.0"`                                                          | Garage version to install/upgrade to (must start with `v`)                                  |
 | `garage_user`                   | `"garage"`                                                          | System user to run Garage                                                                   |
 | `garage_group`                  | `"garage"`                                                          | System group for Garage                                                                     |
 | `garage_home`                   | `"/var/lib/garage"`                                                 | Home directory for the Garage user                                                          |
@@ -78,6 +78,7 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 | `garage_s3_region`              | `"garage"`                                                          | S3 region name                                                                              |
 | `garage_s3_api_bind_addr`       | `"[::]:3900"`                                                       | S3 API bind address                                                                         |
 | `garage_s3_root_domain`         | `""`                                                                | Root domain for S3 bucket access (set to enable vhost-style)                                |
+| `garage_s3_public_endpoint`     | `""`                                                                | Public S3 endpoint URL, e.g. `"https://s3.example.com"` (Garage >= v2.5.0; empty = not set) |
 | `garage_s3_web_bind_addr`       | `""`                                                                | S3 web endpoint bind address (set with root domain to enable)                               |
 | `garage_s3_web_root_domain`     | `""`                                                                | Root domain for web endpoint (set with bind addr to enable)                                 |
 | `garage_admin_api_bind_addr`    | `"[::]:3903"`                                                       | Admin API bind address                                                                      |
@@ -108,6 +109,9 @@ Any Linux distribution with systemd support and python3 installed. Tested on Deb
 - Raw custom options are not supported; use `garage_config_template` for custom config content.
 - Advanced configuration (discovery backends, performance tuning, extra APIs) should be done via a custom template.
 - The environment file is rendered only when `garage_env_variables` is non-empty; by default it includes `GARAGE_LOG_TO_JOURNALD=1` (set `{}` to disable).
+- `garage_s3_public_endpoint` renders `[s3_api] public_endpoint`, which Garage uses when it reports an object's public URL to clients (upstream recommends setting it since v2.5.0). It must be a full `http://` or `https://` URL and needs `garage_version` >= v2.5.0: older releases silently ignore the key, so the role rejects the combination.
+- `GARAGE_LOG_FORMAT=json` (Garage >= v2.5.0) can be set through `garage_env_variables`, but Garage ignores it while `GARAGE_LOG_TO_JOURNALD` is set, which the default does — replace the default dict to switch to JSON logs on stderr.
+- Since v2.6.0 the official Garage binary serves a web administration UI on the admin API listener (`/ui/`, on `garage_admin_api_bind_addr`, `[::]:3903` by default). The page itself loads without authentication; what it does goes through the admin API and needs an admin token. Bind the admin API to a private address (or firewall it) if it should not be reachable.
 - When `*_file` secrets are set, they take precedence over the inline token/secret values.
 - `garage_admin_token`/`garage_admin_token_file` and `garage_metrics_token`/`garage_metrics_token_file` are only rendered in the config when defined and non-empty.
 - When `garage_upgrade` is `false` (default), the role only installs if the binary does not exist. When `true`, it upgrades only if the target version is newer (binary missing triggers a fresh install).

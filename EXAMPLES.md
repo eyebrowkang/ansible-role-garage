@@ -71,6 +71,7 @@ Notes:
     garage_admin_token: "{{ vault_garage_admin_token }}"
     garage_metrics_token: "{{ vault_garage_metrics_token }}"
     garage_s3_root_domain: ".s3.example.com"
+    garage_s3_public_endpoint: "https://s3.example.com"
     garage_s3_web_bind_addr: "[::]:3902"
     garage_s3_web_root_domain: ".web.example.com"
     garage_env_variables:
@@ -86,7 +87,7 @@ Notes:
   hosts: storage
   become: true
   vars:
-    garage_version: "v2.3.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_upgrade_precheck: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"
@@ -106,7 +107,7 @@ taken down, and the port/health checks gate progression to the next node:
   become: true
   serial: 1
   vars:
-    garage_version: "v2.3.0"
+    garage_version: "v2.6.0"
     garage_upgrade: true
     garage_healthcheck_enabled: true
     garage_rpc_secret: "{{ vault_garage_rpc_secret }}"

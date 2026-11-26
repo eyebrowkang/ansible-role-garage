@@ -1,0 +1,6 @@
+---
+# Docker scenario only (its platforms join this group; the vagrant VMs don't). The docker
+# connection already runs as root, so become is a redundant sudo wrapper here — and sudo's
+# PAM stack breaks intermittently in EL9 containers on CI runners ("PAM account management
+# error"). Connection variables override the play-level `become: true` keyword.
+ansible_become: false
